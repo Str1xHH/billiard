@@ -382,6 +382,87 @@ td.num, th.num { text-align: right; }
   *, *::before, *::after { transition: none !important; }
   .c-btn:active { transform: none; }
 }
+
+/* ===================== Нижняя панель вкладок в стиле iOS 26 ===================== */
+:root {
+  --tb-bg: rgba(250, 252, 251, .7);
+  --tb-legible: 0 0 6px rgba(255, 255, 255, .9), 0 1px 1px rgba(255, 255, 255, .8);
+  --tb-edge: rgba(255, 255, 255, .75);
+  --tb-hi: rgba(255, 255, 255, .9);
+  --tb-shadow: 0 10px 34px rgba(12, 32, 22, .18), 0 1px 3px rgba(12, 32, 22, .12);
+  --tb-ind: rgba(19, 32, 25, .075);
+  --tb-ink: #1d2a23;
+  --tb-acc: var(--felt);
+  --tb-lens-rim: rgba(255, 255, 255, .55);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --tb-bg: rgba(30, 34, 32, .7);
+    --tb-legible: 0 0 6px rgba(0, 0, 0, .85), 0 1px 2px rgba(0, 0, 0, .7);
+    --tb-edge: rgba(255, 255, 255, .13);
+    --tb-hi: rgba(255, 255, 255, .22);
+    --tb-shadow: 0 12px 36px rgba(0, 0, 0, .55), 0 1px 3px rgba(0, 0, 0, .4);
+    --tb-ind: rgba(0, 0, 0, .42);
+    --tb-ink: #f2f5f3;
+    --tb-lens-rim: rgba(255, 255, 255, .28);
+  }
+}
+
+.wrap { padding-bottom: calc(118px + env(safe-area-inset-bottom)); }
+.toast { bottom: calc(96px + env(safe-area-inset-bottom)); }
+
+.tb {
+  position: fixed; z-index: 30; left: 50%;
+  bottom: max(14px, calc(env(safe-area-inset-bottom) - 6px));
+  width: min(calc(100vw - 28px), 440px); height: 66px;
+  transform: translateX(-50%);
+  display: grid; grid-template-columns: repeat(3, 1fr); align-items: stretch;
+  padding: 5px; border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, 0)), var(--tb-bg);
+  border: 1px solid var(--tb-edge);
+  box-shadow: inset 0 1px 0 var(--tb-hi), inset 0 -1px 0 rgba(255, 255, 255, .04), var(--tb-shadow);
+  touch-action: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent;
+  transition: transform .35s cubic-bezier(.3, 1.2, .5, 1), opacity .25s ease;
+}
+.tb.is-hidden { transform: translate(-50%, 150%); opacity: 0; pointer-events: none; }
+
+.tb-item {
+  position: relative; z-index: 2; border: 0; background: none; padding: 0; margin: 0;
+  display: grid; place-content: center; justify-items: center; gap: 3px;
+  color: var(--tb-ink); font: inherit; font-size: 11.5px; font-weight: 600; letter-spacing: .01em; cursor: pointer;
+  transition: color .22s ease, transform .3s cubic-bezier(.3, 1.5, .5, 1);
+}
+.tb-item svg { width: 26px; height: 26px; display: block; filter: drop-shadow(0 0 3px var(--tb-glow, transparent)); }
+.tb-item span { text-shadow: var(--tb-legible); }
+/* зелёная копия иконок и подписей, вырезанная ровно по форме линзы/капсулы (clip-path считает скрипт) */
+.tb-acc {
+  position: absolute; inset: 0; z-index: 3; pointer-events: none;
+  display: grid; grid-template-columns: repeat(3, 1fr); padding: 5px;
+  clip-path: inset(50% 50% 50% 50%);
+}
+.tb-acc .tb-item { color: var(--tb-acc); }
+.tb-item:focus-visible { outline: 2px solid var(--chalk); outline-offset: -4px; border-radius: 999px; }
+
+/* выделение в покое — тёмная капсула под вкладкой (ниже иконок) */
+.tb-ind, .tb-lens { position: absolute; left: 0; top: 50%; width: 0; height: 0; pointer-events: none; will-change: transform, width, height; }
+.tb-ind { z-index: 1; background: var(--tb-ind); }
+/* линза — над иконками: прозрачное стекло без бликов, края преломляют то, что под ними (фильтр #tb-refract) */
+.tb-lens {
+  z-index: 4; opacity: 0; background: transparent;
+  border: 1px solid var(--tb-lens-rim);
+  box-shadow:
+    inset 3px 0 5px -3px rgba(255, 70, 140, .35),
+    inset -3px 0 5px -3px rgba(40, 175, 255, .4),
+    0 8px 22px rgba(0, 0, 0, .18);
+}
+.tb-item { will-change: transform; transition: color .2s ease; }
+
+@media (prefers-reduced-motion: reduce) {
+  .tb { transition: none; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .tb { background: var(--surface); }
+}
 </style>
 </head>
 <body>
@@ -913,6 +994,7 @@ function render() {
   if (mode !== 'loading') hideSplash();
   if (focusId) { const el = document.getElementById(focusId); if (el) el.focus({ preventScroll: true }); }
   if (ui.modal) { const f = document.getElementById('m-ok') || document.getElementById('copy-area'); if (f && !focusId) f.focus(); }
+  try { syncTabbar(); } catch (e) { /* панель ещё не создана */ }
 }
 
 const LOGO = '<svg class="logo" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="18.5" fill="var(--felt)"/><circle cx="20" cy="20" r="8.5" fill="var(--surface)"/><text x="20" y="24.4" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)" font-family="Onest, sans-serif">1</text><ellipse cx="12.5" cy="11" rx="4.2" ry="2.3" fill="#fff" opacity=".35" transform="rotate(-35 12.5 11)"/></svg>';
@@ -926,9 +1008,7 @@ function banner() {
 function viewHeader() {
   const tabs = [['log', 'Тренировки'], ['progress', 'Прогресс'], ['programs', 'Комплексы']];
   return '<header class="top"><div class="brand">' + LOGO + '<div><h1>Бильярд</h1><p>дневник тренировок</p></div></div>' + syncPill() + '</header>' +
-    '<nav class="tabs" role="tablist" aria-label="Разделы">' +
-    tabs.map(([k, l]) => '<button class="tab" role="tab" id="tab-' + k + '" aria-selected="' + (ui.tab === k) + '" data-action="tab" data-tab="' + k + '">' + l + '</button>').join('') +
-    '</nav>' + banner();
+    banner();
 }
 function groupsDatalist() {
   const g = [...new Set(state.exercises.map(x => x.group).filter(Boolean))];
@@ -1563,6 +1643,174 @@ function hideSplash() {
   setTimeout(() => { el.classList.add('hide'); setTimeout(() => el.remove(), 600); }, wait);
 }
 setTimeout(hideSplash, 4000);
+
+
+/* ---------- нижняя панель вкладок (iOS 26) ---------- */
+const TB_TABS = [
+  ['log', 'Тренировки', '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M7 2.5a1 1 0 0 1 1 1V5h8V3.5a1 1 0 1 1 2 0V5h.5A3.5 3.5 0 0 1 22 8.5v10a3.5 3.5 0 0 1-3.5 3.5h-13A3.5 3.5 0 0 1 2 18.5v-10A3.5 3.5 0 0 1 5.5 5H6V3.5a1 1 0 0 1 1-1ZM4 10v8.5c0 .83.67 1.5 1.5 1.5h13c.83 0 1.5-.67 1.5-1.5V10H4Z"/><rect x="6" y="12" width="3.2" height="3" rx=".9"/><rect x="10.4" y="12" width="3.2" height="3" rx=".9"/><rect x="14.8" y="12" width="3.2" height="3" rx=".9"/><rect x="6" y="16.2" width="3.2" height="2.6" rx=".9"/><rect x="10.4" y="16.2" width="3.2" height="2.6" rx=".9"/></svg>'],
+  ['progress', 'Прогресс', '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="3" y="13" width="4.6" height="8.5" rx="1.6"/><rect x="9.7" y="8.2" width="4.6" height="13.3" rx="1.6"/><rect x="16.4" y="3" width="4.6" height="18.5" rx="1.6"/></svg>'],
+  ['programs', 'Комплексы', '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="4.6" cy="6" r="2"/><circle cx="4.6" cy="12" r="2"/><circle cx="4.6" cy="18" r="2"/><rect x="8.6" y="4.4" width="12.8" height="3.2" rx="1.6"/><rect x="8.6" y="10.4" width="12.8" height="3.2" rx="1.6"/><rect x="8.6" y="16.4" width="12.8" height="3.2" rx="1.6"/></svg>']
+];
+const tb = document.createElement('nav');
+tb.className = 'tb'; tb.id = 'tabbar'; tb.setAttribute('role', 'tablist'); tb.setAttribute('aria-label', 'Разделы');
+tb.innerHTML = '<span class="tb-ind" aria-hidden="true"></span>' + TB_TABS.map(([k, l, ic]) =>
+  '<button class="tb-item" role="tab" type="button" data-tb="' + k + '" aria-selected="false">' + ic + '<span>' + l + '</span></button>').join('');
+const tbAcc = document.createElement('div');
+tbAcc.className = 'tb-acc'; tbAcc.setAttribute('aria-hidden', 'true');
+tbAcc.innerHTML = TB_TABS.map(([k, l, ic]) => '<span class="tb-item">' + ic + '<span>' + l + '</span></span>').join('');
+tb.appendChild(tbAcc);
+const tbLensEl = document.createElement('span'); tbLensEl.className = 'tb-lens'; tbLensEl.setAttribute('aria-hidden', 'true');
+tb.appendChild(tbLensEl);
+document.body.appendChild(tb);
+const tbInd = tb.querySelector('.tb-ind');
+
+/* преломление у краёв линзы: SVG-фильтр со смещением по карте (+ лёгкое расслоение цветов).
+   Работает в браузерах на движке Chrome; Safari такой фильтр для фона не поддерживает — там линза просто прозрачная. */
+const TB_REFRACT = !/iPhone|iPad|iPod/.test(navigator.userAgent) && /Chrome\/|Chromium|Edg\//.test(navigator.userAgent);
+const tbSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+tbSvg.setAttribute('width', '0'); tbSvg.setAttribute('height', '0'); tbSvg.setAttribute('aria-hidden', 'true');
+tbSvg.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden';
+const chan = (n, sc) => '<feDisplacementMap in="SourceGraphic" in2="map" scale="' + sc + '" xChannelSelector="R" yChannelSelector="G" result="d' + n + '"/>' +
+  '<feColorMatrix in="d' + n + '" type="matrix" values="' + ['1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0', '0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0', '0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0'][n] + '" result="c' + n + '"/>';
+tbSvg.innerHTML = '<filter id="tb-refract" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">' +
+  '<feImage id="tb-map" x="0" y="0" width="100" height="60" preserveAspectRatio="none" result="map"/>' +
+  chan(0, 15) + chan(1, 14) + chan(2, 13) +
+  '<feComposite in="c0" in2="c1" operator="arithmetic" k2="1" k3="1" result="c01"/>' +
+  '<feComposite in="c01" in2="c2" operator="arithmetic" k2="1" k3="1"/></filter>';
+document.body.appendChild(tbSvg);
+const tbMap = tbSvg.querySelector('#tb-map');
+let tbMapAspect = 0;
+// карта смещений для капсулы: в центре ноль, к краям — сильный изгиб внутрь (как у толстого стекла)
+function tbBuildMap(aspect) {
+  const h = 96, w = Math.round(h * aspect), r = h / 2, band = h * 0.3;
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const g = c.getContext('2d'), img = g.createImageData(w, h), d = img.data;
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const px = x + .5, py = y + .5, qx = Math.max(r, Math.min(w - r, px)), dx = px - qx, dy = py - r;
+    const dist = Math.hypot(dx, dy), depth = r - dist;
+    let ox = 0, oy = 0;
+    if (depth > 0) {
+      const t = Math.max(0, 1 - depth / band), k = t * t * (3 - 2 * t);   // плавная кривая без резкого скачка
+      const nx = dist ? dx / dist : 0, ny = dist ? dy / dist : 0;
+      ox = -nx * k; oy = -ny * k;                              // у края берём картинку ближе к центру — край «загибается»
+      ox -= (px - w / 2) / (w / 2) * 0.04; oy -= (py - r) / r * 0.04;   // и чуть-чуть увеличиваем всё под линзой
+    }
+    const i = (y * w + x) * 4;
+    d[i] = 128 + Math.max(-1, Math.min(1, ox)) * 127; d[i + 1] = 128 + Math.max(-1, Math.min(1, oy)) * 127; d[i + 2] = 128; d[i + 3] = 255;
+  }
+  g.putImageData(img, 0, 0);
+  tbMap.setAttribute('href', c.toDataURL());
+  tbMapAspect = aspect;
+}
+if (TB_REFRACT) { tbLensEl.style.backdropFilter = 'url(#tb-refract)'; tbLensEl.style.webkitBackdropFilter = 'url(#tb-refract)'; }
+const tbItems = [...tb.querySelectorAll(':scope > .tb-item')];
+const tbAccItems = [...tbAcc.querySelectorAll('.tb-item')];
+const tbReduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// Физика выделения: x — центр, p — «линза» (0 — тёмная капсула в покое, 1 — стеклянная линза), s — вытягивание от скорости
+const P = { x: null, vx: 0, tx: 0, p: 0, vp: 0, tp: 0, s: 0, vs: 0, dir: 1, down: false, release: false, raf: 0, t: 0, px: 0 };
+
+// размеры из разметки (offsetLeft/offsetWidth): анимации их не искажают
+const tbCenter = i => tbItems[i].offsetLeft + tbItems[i].offsetWidth / 2;
+const tbW = () => tbItems[0].offsetWidth;
+const tbH = () => tb.clientHeight - 10;
+function tbIndex() { const i = TB_TABS.findIndex(t => t[0] === ui.tab); return i < 0 ? 0 : i; }
+function tbNearest(x) { let best = Infinity, n = 0; tbItems.forEach((el, j) => { const d = Math.abs(tbCenter(j) - x); if (d < best) { best = d; n = j; } }); return n; }
+function tbLocalX(ev) { return ev.clientX - tb.getBoundingClientRect().left - tb.clientLeft; }
+// за краями панели — мягкое «резиновое» сопротивление
+function tbRubber(v) {
+  const lo = tbCenter(0), hi = tbCenter(tbItems.length - 1);
+  if (v < lo) return lo - 22 * (1 - 1 / (1 + (lo - v) / 60));
+  if (v > hi) return hi + 22 * (1 - 1 / (1 + (v - hi) / 60));
+  return v;
+}
+
+function tbDraw() {
+  const w = tbW(), h = tbH(), p = Math.max(0, P.p);
+  const W = w * (1 + 0.12 * p), H = h * (1 + 0.3 * p);
+  const s = P.s;
+  const sx = 1 + s, sy = 1 - s * 0.42;                       // тянется по ходу движения и сплющивается
+  const lag = -P.dir * Math.max(0, s) * W * 0.12;            // хвост чуть отстаёт от головы
+  const r = H / 2;                                          // овальная капсула
+  const tf = 'translate3d(' + (P.x - W / 2 + lag).toFixed(2) + 'px,-50%,0) scale(' + sx.toFixed(3) + ',' + sy.toFixed(3) + ')';
+  for (const el of [tbInd, tbLensEl]) { el.style.width = W + 'px'; el.style.height = H + 'px'; el.style.borderRadius = r + 'px'; el.style.transform = tf; }
+  if (TB_REFRACT && p > 0.01) {
+    const a = Math.round(W / H * 10) / 10;
+    if (a !== tbMapAspect) tbBuildMap(a);
+    tbMap.setAttribute('width', W.toFixed(1)); tbMap.setAttribute('height', H.toFixed(1));
+  }
+  // зелёный слой виден ровно внутри линзы: те же центр, размер, вытягивание и скругление
+  const cx = P.x + lag, cy = tb.clientHeight / 2, vw = W * sx, vh = H * sy;
+  const L = cx - vw / 2, T = cy - vh / 2, R = tb.clientWidth - (cx + vw / 2), B = tb.clientHeight - (cy + vh / 2);
+  tbAcc.style.clipPath = 'inset(' + T.toFixed(2) + 'px ' + R.toFixed(2) + 'px ' + B.toFixed(2) + 'px ' + L.toFixed(2) + 'px round ' + (r * sx).toFixed(2) + 'px / ' + (r * sy).toFixed(2) + 'px)';
+  tbInd.style.opacity = String(Math.max(0, 1 - p * 1.4));
+  tbLensEl.style.opacity = String(Math.min(1, p * 1.2));
+  const sel = tbIndex(), hidden = tb.classList.contains('is-hidden');
+  tbItems.forEach((el, j) => {
+    const d = Math.abs(tbCenter(j) - P.x), m = Math.max(0, 1 - d / (w * 0.75));
+    el.style.transform = tbAccItems[j].style.transform = m * p > 0.001 ? 'scale(' + (1 + 0.14 * m * p).toFixed(3) + ')' : '';
+    el.setAttribute('aria-selected', String(!hidden && j === sel));
+  });
+}
+function spring(pos, vel, target, k, damp, dt) { const a = k * (target - pos) - damp * vel; vel += a * dt; return [pos + vel * dt, vel]; }
+function tbFrame(t) {
+  const dt = Math.min(1 / 30, P.t ? (t - P.t) / 1000 : 1 / 60); P.t = t;
+  [P.x, P.vx] = spring(P.x, P.vx, P.tx, 320, 2 * Math.sqrt(320) * 0.8, dt);
+  if (P.release && !P.down && Math.abs(P.tx - P.x) < 8) { P.tp = 0; P.release = false; }
+  [P.p, P.vp] = spring(P.p, P.vp, P.tp, 300, 2 * Math.sqrt(300) * 0.6, dt);
+  if (Math.abs(P.vx) > 20) P.dir = Math.sign(P.vx);
+  const st = Math.min(0.28, Math.abs(P.vx) / 2100) * Math.min(1, 0.35 + P.p);   // насколько тянется от скорости
+  [P.s, P.vs] = spring(P.s, P.vs, st, 520, 2 * Math.sqrt(520) * 0.42, dt);   // слабое демпфирование — «желе» при остановке
+  tbDraw();
+  const calm = !P.down && Math.abs(P.tx - P.x) < 0.3 && Math.abs(P.vx) < 4 && Math.abs(P.tp - P.p) < 0.003 && Math.abs(P.vp) < 0.02 && Math.abs(P.s) < 0.003 && Math.abs(P.vs) < 0.02;
+  if (calm) { P.x = P.tx; P.p = P.tp; P.s = 0; P.vx = P.vp = P.vs = 0; P.raf = 0; P.t = 0; tbDraw(); return; }
+  P.raf = requestAnimationFrame(tbFrame);
+}
+function tbKick() {
+  if (tbReduce) { P.x = P.tx; P.p = P.down ? 1 : 0; P.s = 0; tbDraw(); return; }
+  if (!P.raf) { P.t = 0; P.raf = requestAnimationFrame(tbFrame); }
+}
+function syncTabbar() {
+  tb.classList.toggle('is-hidden', !!ui.sessionId || ui.tab === 'backup');
+  if (P.down) return;
+  const c = tbCenter(tbIndex());
+  if (P.x == null || !tb.offsetWidth) { P.x = P.tx = c; tbDraw(); return; }
+  if (P.tx !== c) { P.tx = c; tbKick(); } else tbDraw();
+}
+function tbSelect(i) {
+  const key = TB_TABS[i][0];
+  P.tx = tbCenter(i); P.release = true; tbKick();
+  if (ui.tab !== key) { ui.tab = key; ui.selectedDay = null; render(); window.scrollTo(0, 0); } else tbDraw();
+}
+
+tb.addEventListener('pointerdown', ev => {
+  if (tb.classList.contains('is-hidden') || ev.button > 0) return;
+  tb.setPointerCapture(ev.pointerId);
+  P.down = true; P.release = false; P.tp = 1; P.px = tbLocalX(ev);
+  P.tx = tbRubber(P.px);        // сразу плывёт к месту нажатия
+  tbKick();
+});
+tb.addEventListener('pointermove', ev => {
+  if (!P.down) return;
+  P.px = tbLocalX(ev);
+  P.tx = tbRubber(P.px);        // следует за курсором без привязки к центрам вкладок
+  tbKick();
+});
+function tbUp(ev) {
+  if (!P.down) return;
+  P.down = false;
+  if (ev.type === 'pointercancel') { P.tx = tbCenter(tbIndex()); P.release = true; tbKick(); return; }
+  tbSelect(tbNearest(tbLocalX(ev)));
+}
+tb.addEventListener('pointerup', tbUp);
+tb.addEventListener('pointercancel', tbUp);
+tb.addEventListener('keydown', ev => {
+  const i = tbItems.indexOf(document.activeElement);
+  if (i < 0) return;
+  if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); P.tp = 1; tbSelect(i); }
+  else if (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft') { ev.preventDefault(); tbItems[(i + (ev.key === 'ArrowRight' ? 1 : tbItems.length - 1)) % tbItems.length].focus(); }
+});
+window.addEventListener('resize', () => { if (!P.down) { P.x = P.tx = tbCenter(tbIndex()); tbDraw(); } });
 
 render();
 startup();
