@@ -519,7 +519,7 @@ function normSession(s) {
     target: e.target == null || e.target === '' ? null : Math.max(1, Math.floor(Number(e.target) || 0)) || null,
     sets: Array.isArray(e.sets) && e.sets.length ? e.sets.map(normSet) : [{ shots: 0, made: 0 }]
   }));
-  return { date: s.date, createdAt: String(s.createdAt || ''), note: String(s.note || ''), programId: String(s.programId || ''), programName: String(s.programName || ''), entries };
+  return { date: s.date, createdAt: String(s.createdAt || ''), updatedAt: Number(s.updatedAt) || 0, note: String(s.note || ''), programId: String(s.programId || ''), programName: String(s.programName || ''), entries };
 }
 function normExercise(x) {
   if (!x || typeof x.id !== 'string') return null;
@@ -545,7 +545,9 @@ function normConfig(c) {
   return { exercises, programs, currentProgramId, options: { autoShot: !!(c.options && c.options.autoShot) } };
 }
 function normalizeState(v) {
-  const out = Object.assign(normConfig(v), { sessions: {} });
+  const deleted = {};
+  Object.entries((v && v.deleted) || {}).forEach(([id, t]) => { if (Number(t) > 0) deleted[id] = Number(t); });
+  const out = Object.assign(normConfig(v), { configUpdatedAt: Number(v && v.configUpdatedAt) || 0, deleted, sessions: {} });
   Object.entries(v.sessions || {}).forEach(([id, s]) => { const n = normSession(s); if (n) out.sessions[id] = n; });
   return out;
 }
@@ -635,8 +637,12 @@ const saveMeta = () => saveObj(LS_META, meta);
 function setDirty(v) { dirty = v; try { localStorage.setItem(LS_DIRTY, v ? '1' : '0'); } catch (e) { /* ignore */ } }
 const cloudOn = () => !!(gh.token && gh.repo);
 
-function persistSession() { markDirty(); }
-function persistConfig() { markDirty(); }
+// метки времени нужны, чтобы при объединении данных с другого устройства побеждала более свежая правка
+function persistSession(id) {
+  if (id) { if (state.sessions[id]) state.sessions[id].updatedAt = Date.now(); else state.deleted[id] = Date.now(); }
+  markDirty();
+}
+function persistConfig() { state.configUpdatedAt = Date.now(); markDirty(); }
 function markDirty() {
   saveLocal();
   editSeq++;
@@ -661,6 +667,22 @@ function dataOf(obj) {
 }
 const sessionsCount = d => Object.keys((d && d.sessions) || {}).length;
 const sameData = d => JSON.stringify(normalizeState(clone(d))) === JSON.stringify(normalizeState(clone(state)));
+/* объединение: по каждой тренировке берётся более свежая версия, удаление побеждает более старые правки,
+   комплексы и упражнения берутся целиком с того устройства, где их меняли позже */
+function mergeData(local, remote) {
+  const a = normalizeState(clone(local)), b = normalizeState(clone(remote));
+  const deleted = Object.assign({}, a.deleted);
+  Object.entries(b.deleted).forEach(([id, t]) => { if (!(deleted[id] >= t)) deleted[id] = t; });
+  const sessions = {};
+  new Set([...Object.keys(a.sessions), ...Object.keys(b.sessions)]).forEach(id => {
+    const x = a.sessions[id], y = b.sessions[id];
+    const s = !x ? y : !y ? x : (y.updatedAt || 0) > (x.updatedAt || 0) ? y : x;
+    if (deleted[id] && deleted[id] >= (s.updatedAt || 0)) return;
+    sessions[id] = s;
+  });
+  const cfg = (b.configUpdatedAt || 0) >= (a.configUpdatedAt || 0) ? b : a;
+  return { exercises: cfg.exercises, programs: cfg.programs, currentProgramId: cfg.currentProgramId, options: cfg.options, configUpdatedAt: cfg.configUpdatedAt || 0, deleted, sessions };
+}
 function applyData(d, sendToCloud) {
   state = normalizeState(clone(d));
   saveLocal();
@@ -707,51 +729,66 @@ function errText(st) {
 }
 const stamp = () => { const d = new Date(); return toISO(d) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); };
 
+// Синхронизация. Если с прошлой отправки облако не менялось, копия уходит одним запросом.
+// Если менялось (правки с другого устройства), данные скачиваются, объединяются и отправляются обратно.
 async function push(opts) {
   opts = opts || {};
-  if (!cloudOn() || pushing) return;
-  if (!dirty && !opts.force) { updateSyncPill(); return; }
-  if (navigator.onLine === false) { offline = true; updateSyncPill(); scheduleRetry(); return; }
+  if (!cloudOn() || pushing || gh.authError) return;
+  if (!dirty && !opts.force && !opts.pull) { updateSyncPill(); return; }
+  if (navigator.onLine === false) { if (dirty) { offline = true; scheduleRetry(); } updateSyncPill(); return; }
   clearTimeout(pushTimer); pushTimer = null;
-  pushing = true; updateSyncPill();
-  const seq = editSeq;
-  const text = JSON.stringify(snapshot());
-  const put = sha => {
+  pushing = true; if (dirty) updateSyncPill();
+  const put = (data, sha) => {
+    const text = JSON.stringify({ app: 'billiard-trainer', format: 1, savedAt: new Date().toISOString(), data });
     const body = JSON.stringify(Object.assign({ message: 'Тренировки ' + stamp(), content: b64enc(text) }, sha ? { sha } : {}));
     return ghReq(gh, '/contents/' + GH_FILE, { method: 'PUT', keepalive: !!opts.keepalive && body.length < 60000, headers: { 'Content-Type': 'application/json' }, body });
   };
-  let status = 'net';
+  const putDone = async r => { const j = await r.json(); gh.sha = j.content && j.content.sha; gh.lastPush = new Date().toISOString(); gh.authError = false; saveGh(); };
+  let status = 'net', seq = editSeq;
   try {
-    let r = await put(gh.sha);
-    if (r.status === 409 || r.status === 422) {
-      const g = await ghReq(gh, '/contents/' + GH_FILE);
-      const sha = g.ok ? (await g.json()).sha : null;
-      r = await put(sha);
+    // быстрый путь: облако не менялось с нашей последней отправки
+    if (dirty && gh.sha && !opts.pull) {
+      const r = await put(clone(state), gh.sha);
+      if (r.ok) { await putDone(r); status = 'ok'; }
+      else if (r.status !== 409 && r.status !== 422) status = r.status;
     }
-    if (r.ok) {
-      const j = await r.json();
-      gh.sha = j.content && j.content.sha; gh.lastPush = new Date().toISOString(); gh.authError = false; saveGh();
-      status = 'ok';
-    } else status = r.status;
-  } catch (e) { status = 'net'; }
+    for (let attempt = 0; status !== 'ok' && attempt < 3 && (status === 'net' || status === 409 || status === 422); attempt++) {
+      status = 'net';
+      const remote = await getRemote(gh);
+      seq = editSeq;
+      if (remote.missing) {
+        const r = await put(clone(state), null);
+        if (r.ok) { await putDone(r); status = 'ok'; } else status = r.status;
+        continue;
+      }
+      if (remote.sha === gh.sha && !dirty) { status = 'ok'; break; }
+      const merged = mergeData(state, remote.data);
+      const localChanged = JSON.stringify(normalizeState(clone(merged))) !== JSON.stringify(normalizeState(clone(state)));
+      if (localChanged) { state = normalizeState(clone(merged)); saveLocal(); scheduleRender(); }
+      const remoteChanged = JSON.stringify(normalizeState(clone(merged))) !== JSON.stringify(normalizeState(clone(remote.data)));
+      if (!remoteChanged) { gh.sha = remote.sha; gh.lastPush = remote.savedAt || gh.lastPush; saveGh(); status = 'ok'; break; }
+      const r = await put(merged, remote.sha);
+      if (r.ok) { await putDone(r); status = 'ok'; } else status = r.status;
+    }
+  } catch (e) { status = (e && e.status) || 'net'; }
   pushing = false;
   if (status === 'ok') {
     offline = false; retryDelay = 5000;
     if (editSeq === seq) setDirty(false); else schedulePush(1500);
   } else if (status === 401 || status === 403 || status === 404) {
     gh.authError = true; saveGh(); toast(errText(status));
-  } else { offline = true; scheduleRetry(); }
+  } else if (dirty) { offline = true; scheduleRetry(); }
   updateSyncPill();
   if (ui.tab === 'backup' && !ui.sessionId) scheduleRender();
 }
 
 function syncInfo() {
-  if (!cloudOn()) return ['На телефоне', 'warn', 'Данные только на телефоне. Подключи облако в разделе «Копии».'];
+  if (!cloudOn()) return ['Без облака', 'warn', 'Данные только на этом устройстве. Подключи облако в разделе «Копии».'];
   if (gh.authError) return ['Ошибка ключа', 'bad', 'Облако не принимает ключ. Обнови его в разделе «Копии».'];
   if (pushing) return ['Сохраняю…', 'wait', 'Отправляю копию в облако'];
-  if (dirty && offline) return ['Ждёт сети', 'warn', 'Сохранено на телефоне. В облако уйдёт, когда появится интернет.'];
-  if (dirty) return ['Сохраняю…', 'wait', 'Сохранено на телефоне, сейчас отправлю в облако'];
-  return ['Сохранено', 'ok', 'Сохранено на телефоне и в облаке'];
+  if (dirty && offline) return ['Ждёт сети', 'warn', 'Сохранено на устройстве. В облако уйдёт, когда появится интернет.'];
+  if (dirty) return ['Сохраняю…', 'wait', 'Сохранено на устройстве, сейчас отправлю в облако'];
+  return ['Сохранено', 'ok', 'Сохранено на устройстве и в облаке'];
 }
 const syncPill = action => { const [t, c, long] = syncInfo(); return '<button class="sync ' + c + '" id="sync" data-action="' + (action || 'open-backup') + '" title="' + esc(long) + '" aria-label="' + esc(long) + '"><span>' + esc(t) + '</span></button>'; };
 function updateSyncPill() {
@@ -835,7 +872,7 @@ function viewBackup() {
         '<input type="hidden" id="gh-repo" value="' + esc(gh.repo) + '">' +
         '<button class="btn btn-primary" id="gh-connect" data-action="cloud-connect"' + (ui.busy ? ' disabled' : '') + '>' + (ui.busy ? 'Проверяю…' : 'Обновить ключ') + '</button>';
     } else {
-      html += '<div class="row-btns"><button class="btn btn-primary" id="gh-push" data-action="cloud-push"' + (pushing ? ' disabled' : '') + '>' + (pushing ? 'Отправляю…' : 'Отправить сейчас') + '</button>' +
+      html += '<div class="row-btns"><button class="btn btn-primary" id="gh-push" data-action="cloud-push"' + (pushing ? ' disabled' : '') + '>' + (pushing ? 'Синхронизирую…' : 'Синхронизировать') + '</button>' +
         '<button class="btn" id="gh-pull" data-action="cloud-pull"' + (ui.busy ? ' disabled' : '') + '>' + (ui.busy ? 'Загружаю…' : 'Восстановить из облака') + '</button></div>';
     }
     html += '<button class="link link-muted" id="gh-off" data-action="cloud-ask-off">Отключить облако</button>';
@@ -849,7 +886,7 @@ function viewBackup() {
     '<p class="bk-muted">' + (meta.lastFile ? 'Последняя копия: ' + esc(fmtStamp(meta.lastFile)) : 'Копий файлом ещё не было') + '</p>' +
     '<div class="row-btns"><button class="btn btn-primary" id="file-out" data-action="file-export">Сделать копию</button><button class="btn" id="file-btn" data-action="file-import">Восстановить из копии</button></div>' +
     '<input type="file" id="file-in" accept=".json,application/json,text/plain" hidden></section>';
-  html += '<p class="bk-muted bk-foot">На телефоне: ' + trainingsWord(Object.keys(state.sessions).length) + ', ' + state.programs.length + ' ' + plural(state.programs.length, ['комплекс', 'комплекса', 'комплексов']) + '</p>';
+  html += '<p class="bk-muted bk-foot">На этом устройстве: ' + trainingsWord(Object.keys(state.sessions).length) + ', ' + state.programs.length + ' ' + plural(state.programs.length, ['комплекс', 'комплекса', 'комплексов']) + '</p>';
   return html;
 }
 
@@ -857,7 +894,7 @@ function startup() {
   mode = 'ready';
   if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
   updateSyncPill();
-  if (cloudOn() && dirty && !gh.authError) push();
+  if (cloudOn() && !gh.authError) push({ pull: true });
 }
 
 /* ---------- отрисовка ---------- */
@@ -1201,13 +1238,13 @@ function viewModal() {
     body = '<h2 id="m-title">Тренировка текстом</h2><textarea id="copy-area" readonly>' + esc(m.text) + '</textarea>' +
       '<div class="modal-actions"><button class="btn" id="m-cancel" data-action="modal-close">Закрыть</button><button class="btn btn-primary" id="m-copy" data-action="copy-again">Скопировать</button></div>';
   } else if (m.type === 'cloud-choose') {
-    body = '<h2 id="m-title">В облаке уже есть данные</h2><p>В облаке: ' + trainingsWord(sessionsCount(m.remote.data)) + (m.remote.savedAt ? ', копия от ' + esc(fmtStamp(m.remote.savedAt)) : '') + '.<br>На телефоне: ' + trainingsWord(Object.keys(state.sessions).length) + '.</p>' +
-      '<div class="modal-actions col"><button class="btn btn-primary" id="m-ok" data-action="cloud-take">Взять из облака</button><button class="btn" id="m-keep" data-action="cloud-keep">Оставить с телефона</button><button class="btn btn-ghost" id="m-cancel" data-action="modal-close">Отмена</button></div>';
+    body = '<h2 id="m-title">В облаке уже есть данные</h2><p>В облаке: ' + trainingsWord(sessionsCount(m.remote.data)) + (m.remote.savedAt ? ', копия от ' + esc(fmtStamp(m.remote.savedAt)) : '') + '.<br>На этом устройстве: ' + trainingsWord(Object.keys(state.sessions).length) + '.</p>' +
+      '<div class="modal-actions col"><button class="btn btn-primary" id="m-ok" data-action="cloud-merge">Объединить</button><button class="btn" id="m-take" data-action="cloud-take">Взять из облака</button><button class="btn" id="m-keep" data-action="cloud-keep">Оставить с этого устройства</button><button class="btn btn-ghost" id="m-cancel" data-action="modal-close">Отмена</button></div>';
   } else if (m.type === 'cloud-restore') {
-    body = '<h2 id="m-title">Восстановить из облака?</h2><p>Данные на телефоне заменятся копией' + (m.remote.savedAt ? ' от ' + esc(fmtStamp(m.remote.savedAt)) : '') + ': ' + trainingsWord(sessionsCount(m.remote.data)) + '.</p>' +
+    body = '<h2 id="m-title">Восстановить из облака?</h2><p>Данные на этом устройстве заменятся копией' + (m.remote.savedAt ? ' от ' + esc(fmtStamp(m.remote.savedAt)) : '') + ': ' + trainingsWord(sessionsCount(m.remote.data)) + '.</p>' +
       '<div class="modal-actions"><button class="btn" id="m-cancel" data-action="modal-close">Отмена</button><button class="btn btn-primary" id="m-ok" data-action="cloud-restore">Восстановить</button></div>';
   } else if (m.type === 'file-restore') {
-    body = '<h2 id="m-title">Восстановить из копии?</h2><p>Данные на телефоне заменятся копией' + (m.savedAt ? ' от ' + esc(fmtStamp(m.savedAt)) : '') + ': ' + trainingsWord(sessionsCount(m.data)) + '.</p>' +
+    body = '<h2 id="m-title">Восстановить из копии?</h2><p>Данные на этом устройстве заменятся копией' + (m.savedAt ? ' от ' + esc(fmtStamp(m.savedAt)) : '') + ': ' + trainingsWord(sessionsCount(m.data)) + '.</p>' +
       '<div class="modal-actions"><button class="btn" id="m-cancel" data-action="modal-close">Отмена</button><button class="btn btn-primary" id="m-ok" data-action="file-restore">Восстановить</button></div>';
   } else if (m.type === 'cloud-off') {
     body = '<h2 id="m-title">Отключить облако?</h2><p>Данные останутся на телефоне и в репозитории, но новые изменения перестанут туда уходить.</p>' +
@@ -1404,11 +1441,12 @@ const actions = {
   'sync-info': () => { toast(syncInfo()[2]); if (cloudOn() && dirty && !gh.authError) { retryDelay = 5000; push(); } },
   'open-backup': () => { ui.tab = 'backup'; ui.selectedDay = null; render(); window.scrollTo(0, 0); },
   'cloud-connect': () => { connectCloud(); },
-  'cloud-push': () => { gh.authError = false; retryDelay = 5000; push({ force: true }); render(); },
+  'cloud-push': () => { gh.authError = false; retryDelay = 5000; push({ pull: true }); render(); },
   'cloud-pull': () => { askCloudRestore(); },
   'cloud-restore': () => { const r = ui.modal.remote; ui.modal = null; gh.sha = r.sha; gh.lastPush = r.savedAt; saveGh(); applyData(r.data, false); toast('Восстановлено: ' + trainingsWord(sessionsCount(r.data))); },
   'cloud-take': () => { const { c, remote } = ui.modal; ui.modal = null; gh = { token: c.token, repo: c.repo, sha: remote.sha, lastPush: remote.savedAt }; saveGh(); applyData(remote.data, false); toast('Данные взяты из облака'); },
   'cloud-keep': () => { const { c, remote } = ui.modal; ui.modal = null; gh = { token: c.token, repo: c.repo, sha: remote.sha }; saveGh(); setDirty(true); render(); push({ force: true }); toast('Облако подключено'); },
+  'cloud-merge': () => { const { c, remote } = ui.modal; ui.modal = null; gh = { token: c.token, repo: c.repo, sha: remote.sha }; saveGh(); state = normalizeState(mergeData(state, remote.data)); saveLocal(); setDirty(true); render(); push({ force: true }); toast('Данные объединены'); },
   'cloud-ask-off': () => { ui.modal = { type: 'cloud-off' }; render(); },
   'cloud-off': () => { ui.modal = null; gh = { repo: gh.repo }; saveGh(); clearTimeout(pushTimer); render(); toast('Облако отключено'); },
   'file-export': exportFile,
@@ -1503,11 +1541,13 @@ document.addEventListener('pointerdown', showTip);
 window.addEventListener('scroll', hideTip, { passive: true });
 let resizeT;
 const pushNow = keepalive => { if (cloudOn() && dirty && !gh.authError) { clearTimeout(retryTimer); retryTimer = null; push({ keepalive }); } };
-window.addEventListener('online', () => { retryDelay = 5000; offline = false; pushNow(false); });
+const pullNow = () => { if (cloudOn() && !gh.authError && !pushing && document.visibilityState !== 'hidden') { clearTimeout(retryTimer); retryTimer = null; push({ pull: true }); } };
+window.addEventListener('online', () => { retryDelay = 5000; offline = false; pullNow(); });
 window.addEventListener('offline', () => { offline = true; updateSyncPill(); });
-document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') pushNow(true); else pushNow(false); });
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') pushNow(true); else pullNow(); });
 window.addEventListener('pagehide', () => pushNow(true));
 setInterval(() => { if (dirty && !pushing && !pushTimer && !retryTimer) pushNow(false); }, 30000);
+setInterval(() => { if (!dirty && !pushTimer) pullNow(); }, 60000);
 window.addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(() => { if (!ui.sessionId && ui.tab === 'progress') scheduleRender(); }, 200); });
 
 /* ---------- заставка ---------- */
