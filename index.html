@@ -204,7 +204,15 @@ h1, h2, h3 { text-wrap: balance; margin: 0; }
 .set { border: 1px solid var(--line); background: var(--surface-2); border-radius: 999px; padding: 4px 10px; font-size: 14px; font-variant-numeric: tabular-nums; }
 .set[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
 .counters { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.counter { display: grid; grid-template-columns: 46px minmax(0, 1fr) 46px; grid-template-rows: auto 48px; gap: 4px; align-items: center; border-radius: 13px; padding: 6px 6px 8px; }
+.counters.made-only { grid-template-columns: minmax(0, 1fr) 64px; }
+.counter { position: relative; display: grid; grid-template-columns: 46px minmax(0, 1fr) 46px; grid-template-rows: auto 48px; gap: 4px; align-items: center; border-radius: 13px; padding: 6px 6px 8px; }
+.made-only .counter { grid-template-columns: 56px minmax(0, 1fr) 56px; }
+.c-hide { position: absolute; top: 1px; right: 3px; width: 28px; height: 22px; border: 0; background: none; padding: 0; color: var(--chalk); opacity: .7; font-size: 17px; line-height: 1; border-radius: 6px; }
+.c-hide:hover { opacity: 1; }
+.c-stub { display: grid; place-content: center; justify-items: center; gap: 0; height: 100%; min-height: 80px; border: 1.5px dashed var(--chalk); border-radius: 13px; background: transparent; color: var(--chalk); padding: 0; opacity: .8; }
+.c-stub b { font-size: 22px; line-height: 1; font-weight: 600; }
+.c-stub span { font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+.c-stub:hover { opacity: 1; background: var(--chalk-soft); }
 .c-shots { background: var(--chalk-soft); }
 .c-made { background: var(--felt-soft); }
 .c-lbl { grid-column: 1 / -1; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 0 4px; }
@@ -288,11 +296,30 @@ textarea { resize: vertical; min-height: 76px; font-weight: 400; }
 .row-btns { display: flex; flex-wrap: wrap; gap: 8px; }
 .pg-cur { margin: 0; font-size: 14px; color: var(--felt); font-weight: 600; }
 .pg-ex-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
-.pg-ex { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2); }
+.pg-ex { position: relative; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2); transition: transform .3s ease; }
+.pg-ex-row { display: flex; align-items: center; gap: 8px; padding: 6px 10px 6px 2px; cursor: pointer; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+.pg-grip { flex: none; width: 30px; height: 40px; margin-right: -4px; border: 0; background: none; padding: 0; display: grid; place-items: center; color: var(--muted); cursor: grab; touch-action: none; border-radius: 8px; }
+.pg-grip svg { width: 10px; height: 16px; fill: currentColor; opacity: .75; }
 .pg-num { width: 24px; height: 24px; flex: none; border-radius: 50%; background: var(--surface); border: 1px solid var(--line); display: grid; place-items: center; font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; }
-.pg-ex-name { flex: 1; min-width: 0; display: grid; }
+.pg-ex-name { flex: 1; min-width: 0; display: grid; text-align: left; border: 0; background: none; padding: 4px 0; font-size: 16px; }
 .pg-ex-name small { color: var(--muted); font-size: 12px; }
 .pg-ex .icon-btn { width: 32px; height: 32px; font-size: 16px; }
+.pg-ex.is-open { background: var(--surface); border-color: var(--muted); }
+.pg-detail { display: grid; gap: 12px; margin: 0 12px; padding: 12px 0 14px; border-top: 1px solid var(--line); }
+.pg-detail .switch-row { align-items: center; }
+.pg-detail .fields { grid-template-columns: minmax(0, 1fr) 96px; }
+.pg-detail .fields .grow { grid-column: 1 / -1; }
+/* перетаскивание */
+.pg-ex.is-pressing { transform: scale(.98); transition: transform .35s ease; }
+.pg-ex-list.is-sorting { cursor: grabbing; }
+.pg-ex-list.is-sorting .pg-ex { transition: transform .22s cubic-bezier(.2, .8, .2, 1); }
+.pg-ex-list.is-sorting .pg-ex.is-drag { z-index: 3; transition: box-shadow .2s, border-color .2s; background: var(--surface); border-color: var(--felt); box-shadow: 0 14px 34px rgba(0, 0, 0, .26), 0 2px 6px rgba(0, 0, 0, .12); }
+.pg-ex-list.is-sorting .pg-ex.is-drag .pg-num { background: var(--felt); border-color: var(--felt); color: var(--on-felt); }
+.pg-ex-list.is-sorting .pg-ex.is-drop { transition: transform .2s cubic-bezier(.2, .8, .2, 1), box-shadow .2s; box-shadow: none; }
+.inline-shots { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+.switch.sm, .switch.sm .sw-track { width: 38px; height: 22px; }
+.switch.sm .sw-track::after { top: 2px; left: 2px; width: 18px; height: 18px; }
+.switch.sm input:checked + .sw-track::after { transform: translateX(16px); }
 .lib-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2); }
 .check { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink); }
 .check input { width: 18px; height: 18px; accent-color: var(--felt); margin: 0; }
@@ -584,27 +611,35 @@ function loadLocal() {
 function saveLocal() { try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) { /* ignore */ } }
 
 let state = normalizeState(loadLocal() || clone(SEED));
-const ui = { busy: false, tab: 'log', sessionId: null, month: todayISO().slice(0, 7), selectedDay: null, picker: false, pickerMonth: null, addOpen: false, activeSet: {}, modal: null, created: new Set(), pgEdit: null };
+const ui = { busy: false, tab: 'log', sessionId: null, month: todayISO().slice(0, 7), selectedDay: null, picker: false, pickerMonth: null, addOpen: false, activeSet: {}, modal: null, created: new Set(), pgEdit: null, pgOpen: null };
 let mode = 'loading';
 function normSet(x) {
   const shots = x && x.shots == null ? null : Math.max(0, Math.floor(Number(x && x.shots) || 0));
   const made = Math.max(0, Math.floor(Number(x && x.made) || 0));
   return { shots, made };
 }
+// madeOnly — упражнение без счётчика ударов (считаются только забитые, как в «Биллии»).
+// У старых записей флага нет: без ударов считаются те, где ни в одной серии удары не записаны.
 function normSession(s) {
   if (!s || typeof s.date !== 'string' || !ISO_RE.test(s.date) || !Array.isArray(s.entries)) return null;
-  const entries = s.entries.filter(e => e && typeof e.exId === 'string').map(e => ({
-    exId: e.exId,
-    name: String(e.name || ''),
-    group: String(e.group || ''),
-    target: e.target == null || e.target === '' ? null : Math.max(1, Math.floor(Number(e.target) || 0)) || null,
-    sets: Array.isArray(e.sets) && e.sets.length ? e.sets.map(normSet) : [{ shots: 0, made: 0 }]
-  }));
+  const entries = s.entries.filter(e => e && typeof e.exId === 'string').map(e => {
+    const sets = Array.isArray(e.sets) && e.sets.length ? e.sets.map(normSet) : [{ shots: 0, made: 0 }];
+    return {
+      exId: e.exId,
+      name: String(e.name || ''),
+      group: String(e.group || ''),
+      target: e.target == null || e.target === '' ? null : Math.max(1, Math.floor(Number(e.target) || 0)) || null,
+      madeOnly: typeof e.madeOnly === 'boolean' ? e.madeOnly : sets.every(x => x.shots == null),
+      sets
+    };
+  });
   return { date: s.date, createdAt: String(s.createdAt || ''), updatedAt: Number(s.updatedAt) || 0, note: String(s.note || ''), programId: String(s.programId || ''), programName: String(s.programName || ''), entries };
 }
 function normExercise(x) {
   if (!x || typeof x.id !== 'string') return null;
-  return { id: x.id, name: String(x.name || 'Без названия'), group: String(x.group || ''), target: x.target == null || x.target === '' ? null : Math.max(1, Math.floor(Number(x.target) || 0)) || null };
+  const out = { id: x.id, name: String(x.name || 'Без названия'), group: String(x.group || ''), target: x.target == null || x.target === '' ? null : Math.max(1, Math.floor(Number(x.target) || 0)) || null };
+  if (x.madeOnly === true) out.madeOnly = true;
+  return out;
 }
 function normProgram(p, ids) {
   if (!p || typeof p.id !== 'string') return null;
@@ -645,11 +680,16 @@ const sessionProgName = s => (progById(s.programId) || {}).name || s.programName
 const configData = () => ({ exercises: clone(state.exercises), programs: clone(state.programs), currentProgramId: state.currentProgramId, options: clone(state.options) });
 
 function entryStats(e) {
-  let shots = 0, made = 0, unknownShots = false;
-  e.sets.forEach(s => { made += s.made || 0; if (s.shots == null) unknownShots = true; else shots += s.shots; });
+  let shots = 0, made = 0, best = 0, unknownShots = false;
+  if (e.madeOnly) {
+    // без ударов: каждая серия — отдельная попытка, 0 тоже результат
+    e.sets.forEach(s => { made += s.made || 0; best = Math.max(best, s.made || 0); });
+    return { shots: 0, made, best, done: made > 0 || e.sets.length > 1, pct: null, unknownShots: true, madeOnly: true };
+  }
+  e.sets.forEach(s => { made += s.made || 0; best = Math.max(best, s.made || 0); if (s.shots == null) unknownShots = true; else shots += s.shots; });
   const done = made > 0 || shots > 0;
   const pct = !unknownShots && shots > 0 ? Math.round(made / shots * 100) : null;
-  return { shots, made, done, pct, unknownShots };
+  return { shots, made, best, done, pct, unknownShots, madeOnly: false };
 }
 function sessionTotals(s) {
   let shots = 0, made = 0;
@@ -663,28 +703,32 @@ function sortedSessions() {
     return (Date.parse(b.createdAt) || 0) - (Date.parse(a.createdAt) || 0);
   });
 }
+// упражнения идут в том порядке, в каком стоят в тренировке; заголовок группы — там, где группа меняется
 function groupedEntries(s) {
-  const order = [], map = new Map();
-  s.entries.forEach((e, i) => { const g = groupOf(e) || ''; if (!map.has(g)) { map.set(g, []); order.push(g); } map.get(g).push(e); });
-  return order.map(g => ({ group: g, entries: map.get(g) }));
+  const out = [];
+  s.entries.forEach(e => {
+    const g = groupOf(e) || '', last = out[out.length - 1];
+    if (last && last.group === g) last.entries.push(e); else out.push({ group: g, entries: [e] });
+  });
+  return out;
 }
 function activeIdx(e) {
   const v = ui.activeSet[ui.sessionId + ':' + e.exId];
   return v == null || v >= e.sets.length ? e.sets.length - 1 : v;
 }
-function setVal(x) {
-  if (x.shots == null) return String(x.made || 0);
+function setVal(x, e) {
+  if (x.shots == null || (e && e.madeOnly)) return String(x.made || 0);
   if (!x.shots && !x.made) return '';
   return (x.made || 0) + '/' + x.shots;
 }
 function entryShort(e) {
   const st = entryStats(e);
-  if (e.sets.length > 1 || st.unknownShots) return e.sets.map((x, i) => (i + 1) + '(' + (setVal(x) || '–') + ')').join(' ');
+  if (e.sets.length > 1 || st.unknownShots) return e.sets.map((x, i) => (i + 1) + '(' + (setVal(x, e) || '–') + ')').join(' ');
   return st.made + '/' + st.shots + (st.pct != null ? ' — ' + st.pct + '%' : '');
 }
 function entryText(e) {
   const st = entryStats(e);
-  if (e.sets.length > 1 || st.unknownShots) return e.sets.map((x, i) => (i + 1) + '(' + setVal(x) + ')').join(',');
+  if (e.sets.length > 1 || st.unknownShots) return e.sets.map((x, i) => (i + 1) + '(' + setVal(x, e) + ')').join(',');
   if (!st.done) return e.target ? '/' + e.target : '';
   return st.made + '/' + st.shots;
 }
@@ -979,10 +1023,10 @@ function startup() {
 }
 
 /* ---------- отрисовка ---------- */
-let pendingRender = false, pointerDown = false;
+let pendingRender = false, pointerDown = false, sorting = false;
 const typing = () => { const a = document.activeElement; return !!a && (a.tagName === 'TEXTAREA' || (a.tagName === 'INPUT' && a.type !== 'checkbox')); };
-function scheduleRender() { if (typing() || pointerDown || ui.modal) { pendingRender = true; return; } render(); }
-function renderSoon() { if (pointerDown) { pendingRender = true; return; } render(); }
+function scheduleRender() { if (typing() || pointerDown || ui.modal || sorting) { pendingRender = true; return; } render(); }
+function renderSoon() { if (pointerDown || sorting) { pendingRender = true; return; } render(); }
 
 function render() {
   pendingRender = false;
@@ -1103,6 +1147,7 @@ function entryCard(e) {
   const k = e.exId.replace(/[^a-zA-Z0-9_-]/g, '_');
   const ex = esc(e.exId);
   const name = nameOf(e);
+  const mo = !!e.madeOnly;
   let pct = '';
   if (st.pct != null) pct = '<span class="ex-pct">' + st.pct + '%</span>';
   else if (st.unknownShots && st.made) pct = '<span class="ex-pct small">забито ' + st.made + '</span>';
@@ -1111,16 +1156,21 @@ function entryCard(e) {
     '<button class="icon-btn danger" id="rm-' + k + '" data-action="remove-entry" data-ex="' + ex + '" aria-label="Убрать «' + esc(name) + '» из тренировки" title="Убрать из тренировки">×</button></div>';
   if (multi) {
     html += '<div class="sets" role="group" aria-label="Серии"><span class="sets-lbl">Серии:</span>' + e.sets.map((x, i) =>
-      '<button class="set" id="set-' + k + '-' + i + '" data-action="set-select" data-ex="' + ex + '" data-i="' + i + '" aria-pressed="' + (i === ai) + '">' + (i + 1) + '(' + (setVal(x) || '–') + ')</button>').join('') + '</div>';
+      '<button class="set" id="set-' + k + '-' + i + '" data-action="set-select" data-ex="' + ex + '" data-i="' + i + '" aria-pressed="' + (i === ai) + '">' + (i + 1) + '(' + (setVal(x, e) || '–') + ')</button>').join('') + '</div>';
   }
-  html += '<div class="counters">' + counter(e, set, 'shots', 'Удары', k, ai, multi) + counter(e, set, 'made', 'Забито', k, ai, multi) + '</div>';
+  html += mo
+    ? '<div class="counters made-only">' + counter(e, set, 'made', 'Забито', k, ai, multi) +
+      '<button class="c-stub" id="shon-' + k + '" data-action="toggle-shots" data-ex="' + ex + '" aria-label="Вернуть счётчик ударов" title="Вернуть счётчик ударов"><b>+</b><span>удары</span></button></div>'
+    : '<div class="counters">' + counter(e, set, 'shots', 'Удары', k, ai, multi) + counter(e, set, 'made', 'Забито', k, ai, multi) + '</div>';
   if (e.target) {
     const w = v => Math.min(100, v / e.target * 100).toFixed(1) + '%';
-    html += '<div class="meter" role="img" aria-label="Ударов ' + st.shots + ' из ' + e.target + ', забито ' + st.made + '"><i class="m-shots" style="width:' + w(st.shots) + '"></i><i class="m-made" style="width:' + w(st.made) + '"></i></div>';
+    html += mo
+      ? '<div class="meter" role="img" aria-label="Забито ' + st.made + ' из ' + e.target + '"><i class="m-made" style="width:' + w(st.made) + '"></i></div>'
+      : '<div class="meter" role="img" aria-label="Ударов ' + st.shots + ' из ' + e.target + ', забито ' + st.made + '"><i class="m-shots" style="width:' + w(st.shots) + '"></i><i class="m-made" style="width:' + w(st.made) + '"></i></div>';
   }
   let sum = '';
-  if (multi) sum = 'Всего: забито ' + st.made + (st.unknownShots ? '' : ' из ' + st.shots);
-  else if (e.target) sum = st.shots + ' / ' + e.target;
+  if (multi) sum = 'Всего: забито ' + st.made + (mo ? ', лучшая серия ' + st.best : st.unknownShots ? '' : ' из ' + st.shots);
+  else if (e.target) sum = (mo ? st.made : st.shots) + ' / ' + e.target;
   html += '<div class="ex-foot"><button class="link" id="addset-' + k + '" data-action="add-set" data-ex="' + ex + '">+ серия</button>' +
     (multi ? '<button class="link link-muted" id="rmset-' + k + '" data-action="remove-set" data-ex="' + ex + '">Убрать серию ' + (ai + 1) + '</button>' : '') +
     (sum ? '<span class="ex-sum">' + sum + '</span>' : '') + '</div></article>';
@@ -1131,6 +1181,7 @@ function counter(e, set, kind, label, k, ai, multi) {
   const ex = esc(e.exId);
   const id = 'in-' + k + '-' + kind;
   return '<div class="counter c-' + kind + '"><label class="c-lbl" for="' + id + '">' + label + (multi ? ' <span>серия ' + (ai + 1) + '</span>' : '') + '</label>' +
+    (kind === 'shots' ? '<button class="c-hide" id="shoff-' + k + '" data-action="toggle-shots" data-ex="' + ex + '" aria-label="Убрать счётчик ударов" title="Убрать счётчик ударов">×</button>' : '') +
     '<button class="c-btn" id="dec-' + k + '-' + kind + '" data-action="count" data-ex="' + ex + '" data-kind="' + kind + '" data-d="-1" aria-label="' + label + ': минус один">−</button>' +
     '<input class="c-val" id="' + id + '" type="number" inputmode="numeric" min="0" step="1" data-field="count" data-ex="' + ex + '" data-kind="' + kind + '" value="' + (v == null ? '' : v) + '" placeholder="—">' +
     '<button class="c-btn plus" id="inc-' + k + '-' + kind + '" data-action="count" data-ex="' + ex + '" data-kind="' + kind + '" data-d="1" aria-label="' + label + ': плюс один">+</button></div>';
@@ -1140,7 +1191,7 @@ function newExerciseForm(ctx, extra) {
     '<label class="field grow" for="' + ctx + '-nx-name"><span>Название</span><input id="' + ctx + '-nx-name" name="name" required maxlength="80"></label>' +
     '<label class="field" for="' + ctx + '-nx-group"><span>Группа</span><input id="' + ctx + '-nx-group" name="group" list="groups" maxlength="60" placeholder="без группы"></label>' +
     '<label class="field" for="' + ctx + '-nx-target"><span>Норма</span><input id="' + ctx + '-nx-target" name="target" type="number" min="1" inputmode="numeric" placeholder="—" value="30"></label>' +
-    '</div>' + (extra || '') + '<button class="btn btn-primary" type="submit" id="' + ctx + '-nx-submit">Добавить упражнение</button></form>';
+    '</div><label class="check" for="' + ctx + '-nx-shots"><input type="checkbox" id="' + ctx + '-nx-shots" name="shots" checked>Считать удары</label>' + (extra || '') + '<button class="btn btn-primary" type="submit" id="' + ctx + '-nx-submit">Добавить упражнение</button></form>';
 }
 function addEntryBlock(s) {
   const available = state.exercises.filter(x => !s.entries.some(e => e.exId === x.id));
@@ -1183,13 +1234,16 @@ function viewPrograms() {
     ? '<p class="pg-cur">✓ Текущий</p>'
     : '<button class="btn btn-primary" id="pg-make-current" data-action="pg-current" data-pg="' + esc(ep.id) + '">Сделать текущим</button>';
   html += '<h3 class="sub-h">Упражнения</h3>';
-  html += exs.length ? '<ol class="pg-ex-list">' + exs.map((x, i) => {
-    const k = safeId(x.id), ex = esc(x.id);
-    const meta = [x.group, x.target ? 'норма ' + x.target : 'без нормы'].filter(Boolean).map(esc).join(' — ');
-    return '<li class="pg-ex"><span class="pg-num">' + (i + 1) + '</span><span class="pg-ex-name"><b>' + esc(x.name) + '</b><small>' + meta + '</small></span>' +
-      '<button class="icon-btn" id="pgu-' + k + '" data-action="pg-ex-move" data-ex="' + ex + '" data-d="-1" aria-label="Поднять выше"' + (i === 0 ? ' disabled' : '') + '>↑</button>' +
-      '<button class="icon-btn" id="pgd-' + k + '" data-action="pg-ex-move" data-ex="' + ex + '" data-d="1" aria-label="Опустить ниже"' + (i === exs.length - 1 ? ' disabled' : '') + '>↓</button>' +
-      '<button class="icon-btn danger" id="pgr-' + k + '" data-action="pg-ex-remove" data-ex="' + ex + '" aria-label="Убрать «' + esc(x.name) + '» из комплекса" title="Убрать из комплекса">×</button></li>';
+  if (ui.pgOpen && !ep.exIds.includes(ui.pgOpen)) ui.pgOpen = null;
+  html += exs.length ? '<ol class="pg-ex-list" aria-label="Порядок упражнений">' + exs.map((x, i) => {
+    const k = safeId(x.id), ex = esc(x.id), open = ui.pgOpen === x.id;
+    const meta = [x.group, x.target ? 'норма ' + x.target : 'без нормы', x.madeOnly ? 'без ударов' : ''].filter(Boolean).map(esc).join(' — ');
+    return '<li class="pg-ex' + (open ? ' is-open' : '') + '" data-ex="' + ex + '"><div class="pg-ex-row" data-action="pg-ex-open" data-ex="' + ex + '">' +
+      '<button class="pg-grip" id="pgg-' + k + '" data-action="pg-grip" data-ex="' + ex + '" aria-label="Переместить «' + esc(x.name) + '», место ' + (i + 1) + ' из ' + exs.length + '. Стрелки вверх и вниз меняют порядок"><svg viewBox="0 0 12 18" aria-hidden="true"><circle cx="3" cy="3" r="1.6"/><circle cx="9" cy="3" r="1.6"/><circle cx="3" cy="9" r="1.6"/><circle cx="9" cy="9" r="1.6"/><circle cx="3" cy="15" r="1.6"/><circle cx="9" cy="15" r="1.6"/></svg></button>' +
+      '<span class="pg-num">' + (i + 1) + '</span>' +
+      '<button class="pg-ex-name" id="pgo-' + k + '" data-action="pg-ex-open" data-ex="' + ex + '" aria-expanded="' + open + '"><b>' + esc(x.name) + '</b><small>' + meta + '</small></button>' +
+      '<button class="icon-btn danger" id="pgr-' + k + '" data-action="pg-ex-remove" data-ex="' + ex + '" aria-label="Убрать «' + esc(x.name) + '» из комплекса" title="Убрать из комплекса">×</button></div>' +
+      (open ? pgDetail(x) : '') + '</li>';
   }).join('') + '</ol>' : '<div class="empty">Нет упражнений</div>';
   const avail = state.exercises.filter(x => !ep.exIds.includes(x.id));
   if (avail.length) html += '<h3 class="sub-h">Добавить</h3><div class="add-list">' + avail.map(x => '<button class="btn" id="pga-' + safeId(x.id) + '" data-action="pg-ex-add" data-ex="' + esc(x.id) + '">+ ' + esc(x.name) + '</button>').join('') + '</div>';
@@ -1203,13 +1257,24 @@ function viewPrograms() {
     '<label for="opt-auto"><b>Забитый шар считается и ударом</b></label></div></section>';
   return html;
 }
+// подробные настройки упражнения прямо в комплексе (меняют упражнение везде, где оно есть)
+function pgDetail(x) {
+  const k = safeId(x.id), ex = esc(x.id);
+  return '<div class="pg-detail"><div class="fields">' +
+    '<label class="field grow" for="pdn-' + k + '"><span>Название</span><input id="pdn-' + k + '" data-field="ex-name" data-ex="' + ex + '" value="' + esc(x.name) + '" maxlength="80"></label>' +
+    '<label class="field" for="pdg-' + k + '"><span>Группа</span><input id="pdg-' + k + '" data-field="ex-group" data-ex="' + ex + '" list="groups" value="' + esc(x.group) + '" maxlength="60" placeholder="без группы"></label>' +
+    '<label class="field" for="pdt-' + k + '"><span>Норма</span><input id="pdt-' + k + '" type="number" min="1" inputmode="numeric" data-field="ex-target" data-ex="' + ex + '" value="' + (x.target || '') + '" placeholder="—"></label></div>' +
+    '<div class="switch-row"><span class="switch"><input type="checkbox" id="pds-' + k + '" data-field="ex-shots" data-ex="' + ex + '"' + (x.madeOnly ? '' : ' checked') + '><span class="sw-track"></span></span>' +
+    '<label for="pds-' + k + '"><b>Счётчик ударов</b></label></div></div>';
+}
 function libRow(x) {
   const k = safeId(x.id), ex = esc(x.id);
   const inP = state.programs.filter(p => p.exIds.includes(x.id)).map(p => p.name);
   return '<li class="lib-row"><div class="ex-row-main">' +
     '<input class="inline-in name" id="nm-' + k + '" data-field="ex-name" data-ex="' + ex + '" value="' + esc(x.name) + '" maxlength="80" aria-label="Название упражнения">' +
     '<div class="ex-row-meta"><input class="inline-in grp" id="gr-' + k + '" data-field="ex-group" data-ex="' + ex + '" list="groups" value="' + esc(x.group) + '" maxlength="60" placeholder="без группы" aria-label="Группа">' +
-    '<label class="inline-target" for="tg-' + k + '">норма <input class="inline-in tiny" id="tg-' + k + '" type="number" min="1" inputmode="numeric" data-field="ex-target" data-ex="' + ex + '" value="' + (x.target || '') + '" placeholder="—"></label></div>' +
+    '<label class="inline-target" for="tg-' + k + '">норма <input class="inline-in tiny" id="tg-' + k + '" type="number" min="1" inputmode="numeric" data-field="ex-target" data-ex="' + ex + '" value="' + (x.target || '') + '" placeholder="—"></label>' +
+    '<label class="inline-shots" for="ls-' + k + '"><span class="switch sm"><input type="checkbox" id="ls-' + k + '" data-field="ex-shots" data-ex="' + ex + '"' + (x.madeOnly ? '' : ' checked') + '><span class="sw-track"></span></span>удары</label></div>' +
     '<span class="state-lbl">' + (inP.length ? 'в комплексах: ' + inP.map(n => '«' + esc(n) + '»').join(', ') : 'ни в одном комплексе') + '</span></div>' +
     '<button class="icon-btn danger" id="del-' + k + '" data-action="ask-del-ex" data-ex="' + ex + '" aria-label="Удалить «' + esc(x.name) + '» из общего списка">×</button></li>';
 }
@@ -1271,7 +1336,7 @@ function viewProgress() {
     });
     if (!name) return;
     if (!pts.length) { noData.push(name); return; }
-    const usePct = pts.some(p => p.st.pct != null);
+    const usePct = !(exById(id) || {}).madeOnly && pts.some(p => p.st.pct != null);
     const series = usePct
       ? pts.filter(p => p.st.pct != null).map(p => ({ date: p.date, v: p.st.pct, detail: p.st.made + ' из ' + p.st.shots }))
       : pts.map(p => ({ date: p.date, v: p.st.made, detail: 'забито ' + p.st.made }));
@@ -1344,7 +1409,7 @@ function closeModal() { ui.modal = null; render(); }
 function createSession(date) {
   const id = uid('s');
   const p = currentProgram();
-  const entries = programExercises(p).map(x => ({ exId: x.id, name: x.name, group: x.group, target: x.target, sets: [{ shots: 0, made: 0 }] }));
+  const entries = programExercises(p).map(newEntry);
   state.sessions[id] = { date, createdAt: new Date().toISOString(), note: '', programId: p.id, programName: p.name, entries };
   ui.created.add(id);
   ui.sessionId = id; ui.picker = false; ui.addOpen = !entries.length; ui.selectedDay = null;
@@ -1362,6 +1427,7 @@ function closeSession() {
   ui.sessionId = null; ui.picker = false; ui.tab = 'log';
   render(); window.scrollTo(0, 0);
 }
+function newEntry(x) { return { exId: x.id, name: x.name, group: x.group, target: x.target, madeOnly: !!x.madeOnly, sets: [{ shots: 0, made: 0 }] }; }
 function findEntry(exId) { const s = cur(); return s ? s.entries.find(e => e.exId === exId) : null; }
 function changeCount(exId, kind, d) {
   const e = findEntry(exId); if (!e) return;
@@ -1372,7 +1438,7 @@ function changeCount(exId, kind, d) {
     return set[k] !== before;
   };
   const changed = bump(kind, d);
-  if (changed && kind === 'made' && state.options.autoShot) bump('shots', d);
+  if (changed && kind === 'made' && state.options.autoShot && !e.madeOnly) bump('shots', d);
   persistSession(ui.sessionId);
   render();
 }
@@ -1381,13 +1447,14 @@ function addExercise(fd, ctx) {
   if (!name) { toast('Впиши название упражнения'); return false; }
   const t = parseInt(fd.get('target'), 10);
   const x = { id: uid('x'), name, group: String(fd.get('group') || '').trim(), target: t > 0 ? t : null };
+  if (!fd.get('shots')) x.madeOnly = true;
   state.exercises.push(x);
   if (ctx === 't') {
     const p = progById(ui.pgEdit) || currentProgram();
     p.exIds.push(x.id);
     toast('«' + name + '» добавлено в комплекс «' + p.name + '»');
   } else if (ctx === 's' && cur()) {
-    cur().entries.push({ exId: x.id, name: x.name, group: x.group, target: x.target, sets: [{ shots: 0, made: 0 }] });
+    cur().entries.push(newEntry(x));
     persistSession(ui.sessionId);
     const p = progById(String(fd.get('toProgram') || ''));
     if (p && !p.exIds.includes(x.id)) p.exIds.push(x.id);
@@ -1454,8 +1521,20 @@ const actions = {
   'toggle-add': () => { ui.addOpen = !ui.addOpen; render(); },
   'add-entry': el => {
     const x = exById(el.dataset.ex); if (!x || findEntry(x.id)) return;
-    cur().entries.push({ exId: x.id, name: x.name, group: x.group, target: x.target, sets: [{ shots: 0, made: 0 }] });
+    cur().entries.push(newEntry(x));
     persistSession(ui.sessionId); render();
+  },
+  // убрать / вернуть счётчик ударов: меняется и в этой тренировке, и в самом упражнении для следующих тренировок.
+  // Записанные удары не стираются — при возврате счётчика они снова видны.
+  'toggle-shots': el => {
+    const e = findEntry(el.dataset.ex); if (!e) return;
+    e.madeOnly = !e.madeOnly;
+    // пока ударов не было видно, забитые могли добавляться без ударов — ударов не может быть меньше забитых
+    if (!e.madeOnly) e.sets.forEach(s => { if (s.shots != null && s.made > s.shots) s.shots = s.made; });
+    const x = exById(e.exId);
+    if (x) { if (e.madeOnly) x.madeOnly = true; else delete x.madeOnly; persistConfig(); }
+    persistSession(ui.sessionId); render();
+    const f = document.getElementById((e.madeOnly ? 'shon-' : 'shoff-') + safeId(e.exId)); if (f) f.focus({ preventScroll: true });
   },
   'copy-text': copyText,
   'copy-again': async () => {
@@ -1473,7 +1552,9 @@ const actions = {
     if (!progById(el.dataset.pg)) return;
     state.currentProgramId = el.dataset.pg; persistConfig(); render();
   },
-  'pg-select': el => { ui.pgEdit = el.dataset.pg; render(); },
+  'pg-select': el => { ui.pgEdit = el.dataset.pg; ui.pgOpen = null; render(); },
+  'pg-ex-open': el => { const id = el.dataset.ex; ui.pgOpen = ui.pgOpen === id ? null : id; render(); },
+  'pg-grip': () => {},
   'pg-new': () => {
     const p = { id: uid('p'), name: uniqueProgName('Новый комплекс'), exIds: [] };
     state.programs.push(p); ui.pgEdit = p.id; persistConfig(); render();
@@ -1483,13 +1564,6 @@ const actions = {
     const src = progById(ui.pgEdit) || currentProgram();
     const p = { id: uid('p'), name: uniqueProgName(src.name + ' (копия)'), exIds: src.exIds.slice() };
     state.programs.push(p); ui.pgEdit = p.id; persistConfig(); render();
-  },
-  'pg-ex-move': el => {
-    const p = progById(ui.pgEdit); if (!p) return;
-    const i = p.exIds.indexOf(el.dataset.ex), j = i + +el.dataset.d;
-    if (i < 0 || j < 0 || j >= p.exIds.length) return;
-    [p.exIds[i], p.exIds[j]] = [p.exIds[j], p.exIds[i]];
-    persistConfig(); render();
   },
   'pg-ex-remove': el => { const p = progById(ui.pgEdit); if (!p) return; p.exIds = p.exIds.filter(id => id !== el.dataset.ex); persistConfig(); render(); },
   'pg-ex-add': el => { const p = progById(ui.pgEdit); if (!p || !exById(el.dataset.ex)) return; if (!p.exIds.includes(el.dataset.ex)) p.exIds.push(el.dataset.ex); persistConfig(); render(); },
@@ -1504,7 +1578,7 @@ const actions = {
   },
   'pg-from-session': () => {
     const s = cur(); if (!s || !s.entries.length) return;
-    s.entries.forEach(e => { if (!exById(e.exId)) state.exercises.push({ id: e.exId, name: e.name || 'Упражнение', group: e.group || '', target: e.target }); });
+    s.entries.forEach(e => { if (!exById(e.exId)) state.exercises.push(Object.assign({ id: e.exId, name: e.name || 'Упражнение', group: e.group || '', target: e.target }, e.madeOnly ? { madeOnly: true } : {})); });
     const p = { id: uid('p'), name: uniqueProgName('Комплекс от ' + fmtDay(s.date)), exIds: s.entries.map(e => e.exId) };
     state.programs.push(p); state.currentProgramId = p.id;
     s.programId = p.id; s.programName = p.name;
@@ -1577,6 +1651,11 @@ document.addEventListener('change', ev => {
     renderSoon();
   } else if (f === 'ex-group') renderSoon();
   else if (f === 'opt-auto') { state.options.autoShot = el.checked; persistConfig(); render(); }
+  else if (f === 'ex-shots') {
+    const x = exById(el.dataset.ex); if (!x) return;
+    if (el.checked) delete x.madeOnly; else x.madeOnly = true;
+    persistConfig(); render();
+  }
 });
 document.addEventListener('keydown', ev => {
   if (ev.key !== 'Escape') return;
@@ -1584,9 +1663,134 @@ document.addEventListener('keydown', ev => {
   else if (ui.picker) { ui.picker = false; render(); }
 });
 document.addEventListener('pointerdown', () => { pointerDown = true; }, true);
-document.addEventListener('pointerup', () => { pointerDown = false; if (pendingRender) setTimeout(() => { if (pendingRender && !typing()) render(); }, 0); }, true);
+document.addEventListener('pointerup', () => { pointerDown = false; if (pendingRender) setTimeout(() => { if (pendingRender && !typing() && !sorting) render(); }, 0); }, true);
 document.addEventListener('pointercancel', () => { pointerDown = false; }, true);
-document.addEventListener('focusout', () => { setTimeout(() => { if (pendingRender && !typing() && !pointerDown) render(); }, 0); });
+document.addEventListener('focusout', () => { setTimeout(() => { if (pendingRender && !typing() && !pointerDown && !sorting) render(); }, 0); });
+
+/* ---------- порядок упражнений в комплексе: зажать и перетащить ---------- */
+// Зажатие строки (~0,35 с без движения) поднимает её, дальше она едет за пальцем, остальные расступаются.
+// За точки слева можно тянуть сразу. Если палец сдвинулся раньше — это обычная прокрутка.
+// У края экрана список сам прокручивается. С клавиатуры: фокус на точках и стрелки вверх/вниз.
+const DRAG_DELAY = 350, DRAG_SLOP = 8;
+let press = null, drag = null, eatClickUntil = 0;
+
+function pressCancel() {
+  if (!press) return;
+  clearTimeout(press.timer);
+  press.li.classList.remove('is-pressing');
+  press = null;
+}
+function dragStart() {
+  const p = press; if (!p) return;
+  clearTimeout(p.timer); press = null;
+  p.li.classList.remove('is-pressing');
+  const list = p.li.parentElement, items = [...list.children], from = items.indexOf(p.li);
+  if (from < 0 || !document.body.contains(p.li)) return;
+  const sy = window.scrollY;
+  const rects = items.map(el => { const r = el.getBoundingClientRect(); return { top: r.top + sy, h: r.height }; });
+  const gap = parseFloat(getComputedStyle(list).rowGap) || 6;
+  drag = { id: p.id, li: p.li, list, items, from, to: from, rects, gap, startY: p.y + sy, cy: p.y, dy: 0, raf: 0 };
+  sorting = true; eatClickUntil = Infinity;
+  list.classList.add('is-sorting'); p.li.classList.add('is-drag');
+  try { if (navigator.vibrate) navigator.vibrate(10); } catch (e) { /* нет вибрации */ }
+  dragUpdate();
+  drag.raf = requestAnimationFrame(dragTick);
+}
+function dragUpdate() {
+  const d = drag, r = d.rects, n = r.length, me = r[d.from];
+  let dy = d.cy + window.scrollY - d.startY;
+  dy = Math.max(r[0].top - me.top - 14, Math.min(r[n - 1].top + r[n - 1].h - me.top - me.h + 14, dy));
+  const mid = me.top + dy + me.h / 2;
+  let to = d.from;
+  for (let k = d.from + 1; k < n; k++) if (mid > r[k].top + r[k].h / 2) to = k;
+  for (let k = d.from - 1; k >= 0; k--) if (mid < r[k].top + r[k].h / 2) to = k;
+  d.dy = dy;
+  d.li.style.transform = 'translate3d(0,' + dy.toFixed(1) + 'px,0) scale(1.03)';
+  if (to === d.to && d.placed) return;
+  d.to = to; d.placed = true;
+  const shift = me.h + d.gap;
+  const order = d.items.map((_, k) => k); order.splice(d.from, 1); order.splice(to, 0, d.from);
+  d.items.forEach((el, k) => {
+    const num = el.querySelector('.pg-num'); if (num) num.textContent = order.indexOf(k) + 1;
+    if (k === d.from) return;
+    const off = d.from < to && k > d.from && k <= to ? -shift : to < d.from && k >= to && k < d.from ? shift : 0;
+    el.style.transform = off ? 'translate3d(0,' + off + 'px,0)' : '';
+  });
+}
+// у верхнего и нижнего края экрана список прокручивается сам (снизу учитывается панель вкладок)
+function dragTick() {
+  if (!drag) return;
+  const y = drag.cy, H = window.innerHeight, TOP = 80, BOT = 150;
+  let v = 0;
+  if (y < TOP) v = -Math.ceil(Math.min(1, (TOP - y) / TOP) * 16);
+  else if (y > H - BOT) v = Math.ceil(Math.min(1, (y - (H - BOT)) / BOT) * 16);
+  if (v) { const before = window.scrollY; window.scrollBy(0, v); if (window.scrollY !== before) dragUpdate(); }
+  drag.raf = requestAnimationFrame(dragTick);
+}
+function dragEnd(cancel) {
+  const d = drag; if (!d) return;
+  drag = null;
+  cancelAnimationFrame(d.raf);
+  const to = cancel ? d.from : d.to, r = d.rects, me = r[d.from];
+  const finalTop = to > d.from ? r[to].top + r[to].h - me.h : r[to].top;
+  if (cancel) d.items.forEach(el => { if (el !== d.li) el.style.transform = ''; });
+  d.li.classList.add('is-drop');
+  d.li.style.transform = 'translate3d(0,' + (finalTop - me.top).toFixed(1) + 'px,0)';
+  eatClickUntil = Date.now() + 400;   // отпускание пальца не должно открыть/закрыть строку
+  setTimeout(() => {
+    sorting = false;
+    const p = progById(ui.pgEdit);
+    if (to !== d.from && p) {
+      const order = d.items.map(el => el.dataset.ex);
+      const [moved] = order.splice(d.from, 1); order.splice(to, 0, moved);
+      p.exIds = order.concat(p.exIds.filter(id => !order.includes(id)));
+      persistConfig();
+    }
+    render();
+  }, 200);
+}
+function moveByKey(exId, dir) {
+  const p = progById(ui.pgEdit); if (!p) return;
+  const i = p.exIds.indexOf(exId), j = i + dir;
+  if (i < 0 || j < 0 || j >= p.exIds.length) return;
+  [p.exIds[i], p.exIds[j]] = [p.exIds[j], p.exIds[i]];
+  persistConfig(); render();
+  const g = document.getElementById('pgg-' + safeId(exId)); if (g) g.focus();
+}
+
+document.addEventListener('pointerdown', ev => {
+  if (ev.button > 0 || drag || press || ui.modal) return;
+  const li = ev.target.closest && ev.target.closest('.pg-ex-list > .pg-ex');
+  if (!li || ev.target.closest('input, textarea, label, .icon-btn, .pg-detail')) return;
+  press = { li, id: ev.pointerId, x: ev.clientX, y: ev.clientY, timer: 0 };
+  if (ev.target.closest('.pg-grip')) { dragStart(); return; }   // за точки — сразу
+  li.classList.add('is-pressing');
+  press.timer = setTimeout(dragStart, DRAG_DELAY);
+});
+document.addEventListener('pointermove', ev => {
+  if (press && ev.pointerId === press.id) {
+    if (Math.hypot(ev.clientX - press.x, ev.clientY - press.y) > DRAG_SLOP) pressCancel(); else press.y = ev.clientY;
+  } else if (drag && ev.pointerId === drag.id) { drag.cy = ev.clientY; dragUpdate(); }
+});
+document.addEventListener('pointerup', ev => {
+  if (press && ev.pointerId === press.id) pressCancel();
+  if (drag && ev.pointerId === drag.id) dragEnd(false);
+});
+document.addEventListener('pointercancel', ev => {
+  if (press && ev.pointerId === press.id) pressCancel();
+  if (drag && ev.pointerId === drag.id) dragEnd(false);
+});
+// пока строка поднята, страница под пальцем не прокручивается
+document.addEventListener('touchmove', ev => { if (drag) ev.preventDefault(); }, { passive: false });
+document.addEventListener('contextmenu', ev => { if (drag || press || (ev.target.closest && ev.target.closest('.pg-ex-row'))) ev.preventDefault(); });
+document.addEventListener('click', ev => { if (Date.now() < eatClickUntil) { ev.stopPropagation(); ev.preventDefault(); } }, true);
+document.addEventListener('keydown', ev => {
+  const g = ev.target.closest && ev.target.closest('.pg-grip');
+  if (ev.key === 'Escape' && drag) { dragEnd(true); return; }
+  if (!g || (ev.key !== 'ArrowUp' && ev.key !== 'ArrowDown')) return;
+  ev.preventDefault();
+  moveByKey(g.dataset.ex, ev.key === 'ArrowUp' ? -1 : 1);
+});
 
 /* подсказка на графиках */
 const tip = document.getElementById('tip');
