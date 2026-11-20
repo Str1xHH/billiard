@@ -437,7 +437,7 @@ td.num, th.num { text-align: right; }
   bottom: max(14px, calc(env(safe-area-inset-bottom) - 6px));
   width: min(calc(100vw - 28px), 440px); height: 66px;
   transform: translateX(-50%);
-  display: grid; grid-template-columns: repeat(3, 1fr); align-items: stretch;
+  display: grid; grid-template-columns: repeat(4, 1fr); align-items: stretch;
   padding: 5px; border-radius: 999px;
   background: linear-gradient(180deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, 0)), var(--tb-bg);
   border: 1px solid var(--tb-edge);
@@ -458,7 +458,7 @@ td.num, th.num { text-align: right; }
 /* зелёная копия иконок и подписей, вырезанная ровно по форме линзы/капсулы (clip-path считает скрипт) */
 .tb-acc {
   position: absolute; inset: 0; z-index: 3; pointer-events: none;
-  display: grid; grid-template-columns: repeat(3, 1fr); padding: 5px;
+  display: grid; grid-template-columns: repeat(4, 1fr); padding: 5px;
   clip-path: inset(50% 50% 50% 50%);
 }
 .tb-acc .tb-item { color: var(--tb-acc); }
@@ -484,6 +484,136 @@ td.num, th.num { text-align: right; }
 @media (prefers-reduced-transparency: reduce) {
   .tb { background: var(--surface); }
 }
+
+/* ===================== Справочник ===================== */
+.vh { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; opacity: 0; }
+.link-danger { color: var(--danger); }
+/* поиск — та же капсула, что и нижняя панель: заливка 70%, без размытия */
+.g-search-wrap { position: sticky; top: max(10px, env(safe-area-inset-top)); z-index: 20; }
+.g-search {
+  display: flex; align-items: center; gap: 10px; height: 54px; padding: 0 8px 0 18px; border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, 0)), var(--tb-bg);
+  border: 1px solid var(--tb-edge);
+  box-shadow: inset 0 1px 0 var(--tb-hi), inset 0 -1px 0 rgba(255, 255, 255, .04), var(--tb-shadow);
+  color: var(--tb-ink);
+}
+.g-search > svg { width: 21px; height: 21px; flex: none; opacity: .7; }
+.g-search input {
+  flex: 1; min-width: 0; height: 100%; border: 0; border-radius: 0; background: transparent; box-shadow: none;
+  color: var(--tb-ink); font: inherit; font-size: 17px; font-weight: 500; padding: 0; outline: none; -webkit-appearance: none; appearance: none;
+}
+.g-search input::placeholder { color: var(--tb-ink); opacity: .5; }
+.g-search input::-webkit-search-cancel-button, .g-search input::-webkit-search-decoration { -webkit-appearance: none; display: none; }
+.g-search:focus-within { border-color: var(--felt); }
+.g-qx { width: 38px; height: 38px; flex: none; border: 0; border-radius: 50%; padding: 0; display: grid; place-items: center; background: var(--tb-ind); color: var(--tb-ink); font-size: 20px; line-height: 1; }
+.g-qx[hidden] { display: none; }
+
+.g-sec { display: grid; gap: 10px; }
+.g-sec[hidden], .g-card[hidden] { display: none; }
+.g-h { margin: 6px 4px 0; font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.g-list { display: grid; gap: 10px; }
+.g-card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); overflow: hidden; scroll-margin-top: 84px; }
+.g-head { width: 100%; display: flex; align-items: center; gap: 10px; padding: 14px 14px 14px 16px; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.g-ttl { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.g-ttl b { font-size: 17px; font-weight: 700; line-height: 1.25; }
+.g-ttl small { font-size: 13px; color: var(--muted); }
+.g-badges { display: flex; gap: 6px; color: var(--muted); }
+.g-badges svg { width: 18px; height: 18px; display: block; }
+.g-chev { width: 20px; height: 20px; flex: none; fill: none; stroke: var(--muted); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform .25s ease; }
+.g-card.is-open .g-chev { transform: rotate(180deg); }
+.g-body { display: grid; gap: 14px; padding: 0 16px 16px; }
+
+/* видео */
+.g-vwrap { display: grid; gap: 6px; }
+.g-video { position: relative; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden; background: #000; }
+.g-video iframe, .g-video video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #000; display: block; }
+.g-vposter { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; padding: 0; display: grid; place-content: center; justify-items: center; gap: 8px; color: #fff; font: inherit; cursor: pointer;
+  background: radial-gradient(120% 90% at 50% 40%, #1d6448 0%, #0d2a1f 60%, #08140f 100%); }
+.g-play { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; background: rgba(255, 255, 255, .16); border: 1px solid rgba(255, 255, 255, .35); }
+.g-play svg { width: 26px; height: 26px; fill: #fff; margin-left: 4px; }
+.g-vposter small { font-size: 13px; opacity: .8; }
+.g-vstatus { position: absolute; inset: 0; display: grid; place-items: center; padding: 16px; text-align: center; color: #cfd8d3; font-size: 14px; }
+.g-vsrc { justify-self: end; font-size: 13px; color: var(--muted); }
+.g-vlinkbox { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line); color: var(--ink); text-decoration: none; }
+.g-vlinkbox svg { width: 22px; height: 22px; fill: var(--felt); flex: none; }
+.g-vlinkbox span { display: grid; font-weight: 600; }
+.g-vlinkbox small { font-weight: 400; color: var(--muted); font-size: 13px; }
+.g-vempty, .g-scheme-empty { width: 100%; border: 1.5px dashed var(--line); border-radius: 12px; background: var(--surface-2); color: var(--chalk); font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; }
+.g-vempty { aspect-ratio: 16 / 9; }
+.g-scheme-empty { padding: 18px; }
+
+/* описание */
+.g-desc { font-size: 15.5px; line-height: 1.55; }
+.g-desc p { margin: 0 0 10px; }
+.g-desc p:last-child { margin-bottom: 0; }
+.g-desc::after { content: ''; display: block; clear: both; }
+.g-empty { color: var(--muted); }
+.g-hit { float: right; margin: 2px 0 6px 14px; display: grid; justify-items: center; gap: 3px; }
+.g-hit svg { width: 64px; height: 64px; display: block; }
+.g-hit .hb { fill: var(--surface-2); stroke: var(--muted); stroke-width: .05; }
+.g-hit .hx { stroke: var(--line); stroke-width: .04; }
+.g-hit .hd { fill: #d6402f; }
+.g-hit .hd2 { opacity: .45; }
+.g-hit figcaption { font-size: 11px; color: var(--muted); }
+.g-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.g-chip { border: 1px solid var(--line); background: var(--surface-2); border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 13.5px; color: var(--muted); cursor: pointer; }
+.g-chip b { color: var(--ink); font-weight: 600; }
+.g-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 10px; border-top: 1px solid var(--line); }
+.g-add { justify-self: center; }
+
+/* правка */
+.g-body.is-edit { gap: 16px; }
+.g-edsec { display: grid; gap: 10px; }
+.g-vlist { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.g-vlist li { display: flex; align-items: center; gap: 10px; padding: 8px 8px 8px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2); }
+.g-vic svg { width: 20px; height: 20px; display: block; color: var(--felt); }
+.g-vname { flex: 1; min-width: 0; display: grid; }
+.g-vname b, .g-vname small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.g-vname small { color: var(--muted); font-size: 12.5px; }
+.g-vadd { display: flex; gap: 8px; }
+.g-vadd input { flex: 1; min-width: 0; }
+.g-vpick { justify-self: start; cursor: pointer; }
+.g-vpick svg, .g-body .btn svg { width: 18px; height: 18px; color: var(--felt); }
+.g-body textarea { min-height: 180px; line-height: 1.5; }
+
+/* схема на столе */
+.g-scheme { display: grid; gap: 8px; justify-items: center; }
+.g-scheme .tbl { width: 100%; max-width: 440px; height: auto; display: block; }
+.g-meas, .se-meas { margin: 0; min-height: 1.45em; font-size: 14px; text-align: center; }
+.tbl { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.tbl .t-frame { fill: #4a2f1c; }
+.tbl .t-cush { fill: #0f5537; }
+.tbl .t-felt { fill: #17794f; }
+.tbl .t-line { stroke: rgba(255, 255, 255, .2); stroke-width: .07; stroke-dasharray: .45 .35; }
+.tbl .t-spot { fill: rgba(255, 255, 255, .55); }
+.tbl .t-dia { fill: #e9dcc0; }
+.tbl .t-pocket { fill: #070b09; }
+.tbl .t-path { stroke: #fff; stroke-width: .14; stroke-linecap: round; stroke-dasharray: .55 .3; opacity: .92; }
+.tbl .t-arrowhead { fill: #fff; }
+.tbl .t-ball > circle:first-child { stroke: rgba(0, 0, 0, .4); stroke-width: .05; }
+.tbl .t-cue > circle:first-child { fill: #c0392b; }
+.tbl .t-obj > circle:first-child { fill: #f3ecdc; }
+.tbl .t-shine { fill: rgba(255, 255, 255, .7); pointer-events: none; }
+.tbl .t-tap { fill: transparent; cursor: pointer; }
+.tbl .t-ball.is-sel > circle:first-child { stroke: #ffd54a; stroke-width: .14; }
+.tbl .t-meas { stroke: #ffd54a; stroke-width: .09; stroke-dasharray: .28 .2; pointer-events: none; }
+.tbl .t-lbl { fill: #fff; font-family: var(--font-body); font-weight: 700; paint-order: stroke; stroke: rgba(0, 0, 0, .65); stroke-width: .28; pointer-events: none; }
+
+/* редактор схемы */
+.se { display: grid; gap: 10px; }
+.se-top { display: flex; align-items: center; gap: 10px; }
+.se-title { flex: 1; min-width: 0; display: grid; }
+.se-title b { font-size: 17px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.se-title small { font-size: 13px; color: var(--muted); }
+.seg { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 4px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--line); }
+.seg button { border: 0; background: none; border-radius: 10px; padding: 7px 4px 6px; display: grid; justify-items: center; gap: 2px; font: inherit; font-size: 12.5px; font-weight: 600; color: var(--ink); cursor: pointer; }
+.seg button svg { width: 22px; height: 22px; display: block; }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--felt); box-shadow: var(--shadow); }
+.se-board { display: flex; justify-content: center; }
+.se-board .tbl { display: block; width: auto; max-width: 100%; height: calc(100vh - 262px); height: calc(100dvh - 262px); min-height: 320px; touch-action: none; cursor: crosshair; }
+.se-bottom { display: flex; justify-content: space-between; gap: 12px; }
+.se-bottom .link:disabled { opacity: .4; }
+@media (min-width: 700px) { .se-board .tbl { max-height: 820px; } }
 </style>
 </head>
 <body>
@@ -605,7 +735,7 @@ function loadLocal() {
 function saveLocal() { try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) { /* ignore */ } }
 
 let state = normalizeState(loadLocal() || clone(SEED));
-const ui = { busy: false, tab: 'log', sessionId: null, month: todayISO().slice(0, 7), selectedDay: null, picker: false, pickerMonth: null, addOpen: false, activeSet: {}, modal: null, created: new Set(), pgEdit: null, pgOpen: null };
+const ui = { busy: false, tab: 'log', sessionId: null, month: todayISO().slice(0, 7), selectedDay: null, picker: false, pickerMonth: null, addOpen: false, activeSet: {}, modal: null, created: new Set(), pgEdit: null, pgOpen: null, gq: '', gOpen: null, gEdit: null, gPlay: {}, gSel: {}, gScroll: null, gFocus: null, schemeEdit: null };
 let mode = 'loading';
 function normSet(x) {
   const shots = x && x.shots == null ? null : Math.max(0, Math.floor(Number(x && x.shots) || 0));
@@ -931,11 +1061,11 @@ async function connectCloud() {
   try { remote = await getRemote(c); } catch (e) { ui.busy = false; render(); toast(errText(e && e.status)); return; }
   ui.busy = false;
   if (remote.missing) {
-    gh = { token, repo }; saveGh(); setDirty(true); render(); toast('Облако подключено'); push({ force: true });
+    gh = { token, repo }; saveGh(); scheduleGuideSync(1500); setDirty(true); render(); toast('Облако подключено'); push({ force: true });
     return;
   }
   if (!meta.touched || sameData(remote.data)) {
-    gh = { token, repo, sha: remote.sha, lastPush: remote.savedAt }; saveGh();
+    gh = { token, repo, sha: remote.sha, lastPush: remote.savedAt }; saveGh(); scheduleGuideSync(1500);
     const restored = !sameData(remote.data);
     applyData(remote.data, false);
     toast(restored ? 'Данные восстановлены из облака: ' + sessionsCount(remote.data) + ' ' + plural(sessionsCount(remote.data), ['тренировка', 'тренировки', 'тренировок']) : 'Облако подключено');
@@ -953,7 +1083,7 @@ async function askCloudRestore() {
   } catch (e) { ui.busy = false; render(); toast(errText(e && e.status)); }
 }
 function exportFile() {
-  const text = JSON.stringify(snapshot(), null, 1);
+  const text = JSON.stringify(Object.assign(snapshot(), { guide }), null, 1);
   const name = 'bilyard-kopiya-' + todayISO() + '.json';
   const done = () => { meta.lastFile = new Date().toISOString(); saveMeta(); render(); };
   const download = () => {
@@ -972,9 +1102,10 @@ function exportFile() {
 async function readImportFile(f) {
   if (!f) return;
   let d = null, savedAt = '';
-  try { const obj = JSON.parse(await f.text()); d = dataOf(obj); savedAt = (obj && obj.savedAt) || ''; } catch (e) { d = null; }
+  let g = null;
+  try { const obj = JSON.parse(await f.text()); d = dataOf(obj); savedAt = (obj && obj.savedAt) || ''; g = obj && obj.guide ? normGuide(obj.guide) : null; } catch (e) { d = null; }
   if (!d) { toast('Это не файл копии'); return; }
-  ui.modal = { type: 'file-restore', data: d, savedAt, name: f.name }; render();
+  ui.modal = { type: 'file-restore', data: d, guide: g, savedAt, name: f.name }; render();
 }
 const fmtStamp = iso => { const d = new Date(iso); if (isNaN(d)) return ''; return d.getDate() + ' ' + MONTHS_GEN[d.getMonth()] + (d.getFullYear() !== new Date().getFullYear() ? ' ' + d.getFullYear() : '') + ', ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); };
 const trainingsWord = n => n + ' ' + plural(n, ['тренировка', 'тренировки', 'тренировок']);
@@ -1026,13 +1157,15 @@ function render() {
   pendingRender = false;
   const a = document.activeElement, focusId = a && a.id;
   if (ui.sessionId && !state.sessions[ui.sessionId]) { ui.sessionId = null; ui.picker = false; }
-  let html = ui.sessionId ? viewSession() : ui.tab === 'backup' ? viewBackup() : viewHeader() + (ui.tab === 'log' ? viewLog() : ui.tab === 'progress' ? viewProgress() : viewPrograms());
+  let html = ui.schemeEdit ? viewSchemeEditor() : ui.sessionId ? viewSession() : ui.tab === 'backup' ? viewBackup() :
+    viewHeader() + (ui.tab === 'log' ? viewLog() : ui.tab === 'progress' ? viewProgress() : ui.tab === 'guide' ? viewGuide() : viewPrograms());
   html += groupsDatalist() + viewModal();
   document.getElementById('app').innerHTML = html;
   if (mode !== 'loading') hideSplash();
   if (focusId) { const el = document.getElementById(focusId); if (el) el.focus({ preventScroll: true }); }
   if (ui.modal) { const f = document.getElementById('m-ok') || document.getElementById('copy-area'); if (f && !focusId) f.focus(); }
   try { syncTabbar(); } catch (e) { /* панель ещё не создана */ }
+  try { afterRenderGuide(); } catch (e) { /* справочник ещё не загружен */ }
 }
 
 const LOGO = '<svg class="logo" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="18.5" fill="var(--felt)"/><circle cx="20" cy="20" r="8.5" fill="var(--surface)"/><text x="20" y="24.4" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)" font-family="Onest, sans-serif">1</text><ellipse cx="12.5" cy="11" rx="4.2" ry="2.3" fill="#fff" opacity=".35" transform="rotate(-35 12.5 11)"/></svg>';
@@ -1366,6 +1499,10 @@ function viewModal() {
     const p = progById(m.pgId);
     body = '<h2 id="m-title">Удалить комплекс «' + esc(p ? p.name : '') + '»?</h2>' +
       '<div class="modal-actions"><button class="btn" id="m-cancel" data-action="modal-close">Отмена</button><button class="btn btn-danger-solid" id="m-ok" data-action="confirm-pg-delete">Удалить</button></div>';
+  } else if (m.type === 'g-del') {
+    const it = gItem(m.gid);
+    body = '<h2 id="m-title">Удалить статью «' + esc(it ? it.name : '') + '»?</h2>' +
+      '<div class="modal-actions"><button class="btn" id="m-cancel" data-action="modal-close">Отмена</button><button class="btn btn-danger-solid" id="m-ok" data-action="confirm-g-del">Удалить</button></div>';
   } else if (m.type === 'copy') {
     body = '<h2 id="m-title">Тренировка текстом</h2><textarea id="copy-area" readonly>' + esc(m.text) + '</textarea>' +
       '<div class="modal-actions"><button class="btn" id="m-cancel" data-action="modal-close">Закрыть</button><button class="btn btn-primary" id="m-copy" data-action="copy-again">Скопировать</button></div>';
@@ -1562,14 +1699,14 @@ const actions = {
   'cloud-push': () => { gh.authError = false; retryDelay = 5000; push({ pull: true }); render(); },
   'cloud-pull': () => { askCloudRestore(); },
   'cloud-restore': () => { const r = ui.modal.remote; ui.modal = null; gh.sha = r.sha; gh.lastPush = r.savedAt; saveGh(); applyData(r.data, false); toast('Восстановлено: ' + trainingsWord(sessionsCount(r.data))); },
-  'cloud-take': () => { const { c, remote } = ui.modal; ui.modal = null; gh = { token: c.token, repo: c.repo, sha: remote.sha, lastPush: remote.savedAt }; saveGh(); applyData(remote.data, false); toast('Данные взяты из облака'); },
-  'cloud-keep': () => { const { c, remote } = ui.modal; ui.modal = null; gh = { token: c.token, repo: c.repo, sha: remote.sha }; saveGh(); setDirty(true); render(); push({ force: true }); toast('Облако подключено'); },
-  'cloud-merge': () => { const { c, remote } = ui.modal; ui.modal = null; gh = { token: c.token, repo: c.repo, sha: remote.sha }; saveGh(); state = normalizeState(mergeData(state, remote.data)); saveLocal(); setDirty(true); render(); push({ force: true }); toast('Данные объединены'); },
+  'cloud-take': () => { const { c, remote } = ui.modal; ui.modal = null; gh = { token: c.token, repo: c.repo, sha: remote.sha, lastPush: remote.savedAt }; saveGh(); scheduleGuideSync(1500); applyData(remote.data, false); toast('Данные взяты из облака'); },
+  'cloud-keep': () => { const { c, remote } = ui.modal; ui.modal = null; gh = { token: c.token, repo: c.repo, sha: remote.sha }; saveGh(); scheduleGuideSync(1500); setDirty(true); render(); push({ force: true }); toast('Облако подключено'); },
+  'cloud-merge': () => { const { c, remote } = ui.modal; ui.modal = null; gh = { token: c.token, repo: c.repo, sha: remote.sha }; saveGh(); scheduleGuideSync(1500); state = normalizeState(mergeData(state, remote.data)); saveLocal(); setDirty(true); render(); push({ force: true }); toast('Данные объединены'); },
   'cloud-ask-off': () => { ui.modal = { type: 'cloud-off' }; render(); },
   'cloud-off': () => { ui.modal = null; gh = { repo: gh.repo }; saveGh(); clearTimeout(pushTimer); render(); toast('Облако отключено'); },
   'file-export': exportFile,
   'file-import': () => { const i = document.getElementById('file-in'); if (i) { i.value = ''; i.click(); } },
-  'file-restore': () => { const d = ui.modal.data; ui.modal = null; applyData(d, true); toast('Восстановлено: ' + trainingsWord(sessionsCount(d))); },
+  'file-restore': () => { const d = ui.modal.data, g = ui.modal.guide; ui.modal = null; if (g) { guide = mergeGuide(guide, g); saveGuide(); gTouch(null); } applyData(d, true); toast('Восстановлено: ' + trainingsWord(sessionsCount(d))); },
   'modal-close': closeModal,
   'modal-backdrop': (el, ev) => { if (ev.target === el) closeModal(); }
 };
@@ -1826,11 +1963,723 @@ function hideSplash() {
 setTimeout(hideSplash, 4000);
 
 
+/* ===================== Справочник: данные и облако ===================== */
+// Справочник живёт отдельно от тренировок: в памяти устройства и в облаке файлом guide.json того же приватного
+// репозитория. Старые версии приложения этот файл не трогают, поэтому не могут его затереть.
+// Свои видео хранятся на устройстве (IndexedDB) и в облаке в папке videos/ того же репозитория.
+const LS_GUIDE = 'billiard-guide-v1', LS_GSYNC = 'billiard-guide-sync-v1', LS_GUP = 'billiard-guide-uploads-v1';
+const GUIDE_FILE = 'guide.json', VIDEO_MAX = 50 * 1024 * 1024;
+const TW = 1775 / 68, TL = 3550 / 68;   // игровое поле стола 12 футов, в шарах (шар 68 мм)
+
+// стартовые статьи; hit — точка удара по битку (x вправо, y вниз, в радиусах шара)
+const GUIDE_EL = [
+  { id: 'el-central', name: 'Центральный удар', hit: [[0, 0]], text:
+    'Удар точно в центр битка, кий держится как можно ровнее, параллельно столу. Это основа остальных ударов: на нём ставят ровный удар без лишнего вращения.\n\n' +
+    'После прямого соударения биток немного прокатывается вслед за прицельным шаром: пока он катится по сукну, трение даёт ему естественное верхнее вращение. Чем дальше прицельный шар, тем заметнее этот прокат.\n\n' +
+    'Ошибки: кий смотрит вверх или вниз, рука дёргает кий вместо ровной проводки, голова поднимается в момент удара.' },
+  { id: 'el-klapshtos', name: 'Клапштос', hit: [[0, 0.3]], text:
+    'Удар без резки, после которого биток останавливается на месте соударения, а прицельный шар уходит вперёд. Нужен, чтобы оставить биток ровно там, где он встретил прицельный шар.\n\n' +
+    'Куда бить: чуть ниже центра битка. К моменту соударения биток должен скользить по сукну без вращения. Чем дальше прицельный шар, тем ниже точка или сильнее удар, иначе нижнее вращение погаснет по дороге и биток покатится вперёд.\n\n' +
+    'Ошибки: биток катится вперёд — удар слишком высоко или слабо; откатывается назад — слишком низко.' },
+  { id: 'el-nakat', name: 'Накат', hit: [[0, -0.5]], text:
+    'Удар выше центра битка. Биток получает верхнее вращение и после соударения продолжает катиться вперёд, вслед за прицельным шаром.\n\n' +
+    'Накатом выводят биток на позицию для следующего удара и забивают свояка, когда биток должен пройти за прицельным шаром.\n\n' +
+    'Куда бить: выше центра, примерно на половину радиуса. Кий ровный, удар плавный, с проводкой кия сквозь биток.\n\n' +
+    'Ошибки: слишком высокая точка ведёт к киксу; удар без проводки даёт слабое вращение.' },
+  { id: 'el-ottyazhka', name: 'Оттяжка', hit: [[0, 0.55]], text:
+    'Удар ниже центра битка. Биток получает обратное вращение и после соударения откатывается назад.\n\n' +
+    'Оттяжкой возвращают биток на нужную позицию и забивают свояка, когда луза позади битка.\n\n' +
+    'Куда бить: заметно ниже центра. Мост ниже и плотнее, кий как можно ровнее, удар резкий, но с проводкой. Чем дальше прицельный шар, тем сильнее нужен удар, чтобы вращение не погасло по дороге.\n\n' +
+    'Ошибки: кикс от слишком низкой точки или ненамеленной наклейки, задранный хвост кия, удар тычком без проводки.' },
+  { id: 'el-vint', name: 'Боковой винт', hit: [[0.5, 0], [-0.5, 0]], text:
+    'Удар левее или правее центра битка. Биток получает вращение вокруг вертикальной оси, и от этого меняется, как он отходит от борта и от прицельного шара.\n\n' +
+    'После борта биток с винтом отходит в сторону винта: с правым — правее, с левым — левее, чем без винта. Так выводят биток на позицию и забивают свояков, которые чисто не идут.\n\n' +
+    'Учитывай снос: при боковом винте биток уходит с линии прицела в сторону, противоположную винту, поэтому прицел надо чуть поправлять. Чем дальше и сильнее удар, тем больше поправка.\n\n' +
+    'Ошибки: точка слишком далеко от центра ведёт к киксу; кривая проводка кия даёт непредсказуемое вращение.' },
+  { id: 'el-svoyak', name: 'Свояк', text:
+    'Удар, цель которого — забить в лузу биток (свой шар) после соударения с прицельным шаром.\n\n' +
+    'Свояков забивают накатом (биток идёт вперёд за прицельным), оттяжкой (возвращается назад), с винтом или в резку — смотря где луза относительно шаров.\n\n' +
+    'Главное — заранее представить путь битка после соударения и подобрать под него точку удара, толщину соударения и силу.' },
+  { id: 'el-chuzhoy', name: 'Чужой', text:
+    'Удар, которым в лузу забивается прицельный шар, а не биток.\n\n' +
+    'Прицел по воображаемому шару: мысленно поставь биток вплотную к прицельному на линии «луза — прицельный шар» с дальней от лузы стороны и бей в центр этого воображаемого шара.\n\n' +
+    'Чтобы биток не упал следом и встал удобно для следующего удара, используют клапштос, накат, оттяжку и винт.' },
+  { id: 'el-rezka', name: 'Резка', text:
+    'Соударение, при котором биток попадает в прицельный шар не по центру, и прицельный шар уходит под углом к линии удара.\n\n' +
+    'По толщине различают толстую резку (биток закрывает большую часть прицельного шара), резку в полшара (центр битка направлен в край прицельного) и тонкую (биток лишь задевает край).\n\n' +
+    'Чем тоньше резка, тем больше угол и тем меньше скорости получает прицельный шар. Тонкие резки требуют точного прицела и ровного уверенного удара.' },
+  { id: 'el-francuz', name: 'Француз', hit: [[0.6, 0]], text:
+    'Разновидность свояка с сильным боковым винтом. Прицельный шар обычно стоит у борта, а биток после соударения медленно идёт вдоль этого борта и закатывается в лузу.\n\n' +
+    'Куда бить: сбоку битка, винтом в сторону лузы; удар мягкий, с проводкой. Сила не нужна: биток должен двигаться медленно, чтобы винт успел довести его вдоль борта.\n\n' +
+    'Название неофициальное, и в разных клубах так могут называть немного разные удары с сильным боковым винтом.' },
+  { id: 'el-duplet', name: 'Дуплет', text:
+    'Удар, при котором прицельный шар после соударения сначала отражается от борта, а потом идёт в лузу.\n\n' +
+    'Чаще всего играют дуплет от длинного борта в среднюю лузу и от короткого борта в угловую. Угол отражения примерно равен углу падения, но сила удара и вращение его заметно меняют, поэтому дуплеты отрабатывают на одних и тех же расстановках, пока не появится чувство угла.\n\n' +
+    'Ошибки: слишком сильный удар и лишний винт на битке.' },
+  { id: 'el-abrikol', name: 'Абриколь', text:
+    'Удар, при котором биток сначала отражается от борта и только потом попадает в прицельный шар.\n\n' +
+    'Абриколь выручает, когда прямой путь к шару закрыт или выгоднее зайти в шар с другой стороны. Точку на борту выбирают так, чтобы после отскока биток пришёл в нужное место прицельного шара.\n\n' +
+    'Отскок сильно зависит от силы удара и винта, поэтому сначала его отрабатывают без винта, средним по силе ударом.' },
+  { id: 'el-ot-shara', name: 'От шара', text:
+    'Удар, при котором шар попадает в лузу не сразу, а после касания другого шара: прицельный шар толкает в лузу третий шар, или шар отражается от другого шара в лузу.\n\n' +
+    'Такие удары выручают, когда прямого удара нет. Важно заранее представить, куда пойдёт каждый шар после соударения.' },
+  { id: 'el-karambol', name: 'Карамболь', text:
+    'Биток последовательно попадает в два шара: в один, отражается и попадает во второй.\n\n' +
+    'В пирамиде карамболь используют, чтобы сыграть второй шар или разбить скопление шаров. Так же называют французский бильярд без луз, где карамболь — основной способ заработать очко.' },
+  { id: 'el-masse', name: 'Массе', text:
+    'Удар сильно наклонённым, почти вертикальным кием в край битка. Биток получает сильное вращение, и его путь изгибается дугой.\n\n' +
+    'Массе позволяет обойти мешающий шар. Удар сложный: при ошибке можно повредить сукно, поэтому во многих клубах его не приветствуют. Отрабатывать стоит только там, где это разрешено.' },
+  { id: 'el-kiks', name: 'Кикс', text:
+    'Ошибка: наклейка кия соскальзывает с битка, удар получается смазанным, и биток идёт не туда.\n\n' +
+    'Причины: точка удара слишком далеко от центра, ненамеленная или стёртая наклейка, кривая проводка кия, рывок в момент удара.\n\n' +
+    'Как избежать: мелить наклейку перед каждым сильным или нецентральным ударом, не уводить точку удара к самому краю битка, бить ровно, с проводкой кия.' },
+  { id: 'el-otygrysh', name: 'Отыгрыш', text:
+    'Тактический удар без попытки забить шар: биток и шары оставляют так, чтобы сопернику было трудно забить.\n\n' +
+    'Обычно биток уводят к короткому борту или за другие шары, а прицельные шары — подальше от луз.' }
+];
+const GUIDE_EL_IDS = new Set(GUIDE_EL.map(e => e.id));
+const elDefault = id => GUIDE_EL.find(e => e.id === id);
+
+/* нормализация: из любых данных — понятный вид, ключи по порядку (чтобы сравнение JSON было честным) */
+const clampN = (v, a, b) => Math.max(a, Math.min(b, Number(v) || 0));
+const r2 = v => Math.round(v * 100) / 100;
+function normVideo(v) {
+  if (!v || typeof v.id !== 'string' || !/^[\w-]{1,60}$/.test(v.id)) return null;
+  if (v.k === 'link' && typeof v.url === 'string' && /^https?:\/\/\S+$/i.test(v.url)) return { id: v.id, k: 'link', url: v.url.slice(0, 600) };
+  if (v.k === 'file' && typeof v.path === 'string' && /^videos\/[\w-]+\.[a-z0-9]{2,5}$/i.test(v.path))
+    return { id: v.id, k: 'file', path: v.path, name: String(v.name || '').slice(0, 120), size: Math.max(0, Number(v.size) || 0), type: String(v.type || 'video/mp4').slice(0, 40) };
+  return null;
+}
+function normScheme(s) {
+  if (!s || typeof s !== 'object') return null;
+  const balls = (Array.isArray(s.balls) ? s.balls : []).filter(b => b && typeof b === 'object').slice(0, 40)
+    .map(b => ({ x: r2(clampN(b.x, .5, TW - .5)), y: r2(clampN(b.y, .5, TL - .5)), t: b.t === 'cue' ? 'cue' : 'obj' }));
+  const paths = (Array.isArray(s.paths) ? s.paths : []).filter(p => p && typeof p === 'object').slice(0, 40)
+    .map(p => ({ x1: r2(clampN(p.x1, -1, TW + 1)), y1: r2(clampN(p.y1, -1, TL + 1)), x2: r2(clampN(p.x2, -1, TW + 1)), y2: r2(clampN(p.y2, -1, TL + 1)) }));
+  return balls.length || paths.length ? { balls, paths } : null;
+}
+function normGItem(id, it) {
+  if (!it || typeof it !== 'object' || !/^(el-[\w-]{1,60}|ex:[\w-]{1,80})$/.test(id)) return null;
+  const kind = id.startsWith('ex:') ? 'ex' : 'el';
+  const videos = (Array.isArray(it.videos) ? it.videos : []).map(normVideo).filter(Boolean).slice(0, 12);
+  return {
+    name: kind === 'el' ? String(it.name || 'Без названия').slice(0, 80) : '',
+    text: String(it.text == null ? '' : it.text).slice(0, 20000),
+    videos,
+    scheme: kind === 'ex' ? normScheme(it.scheme) : null,
+    updatedAt: Number(it.updatedAt) || 0
+  };
+}
+function normGuide(g) {
+  g = g && typeof g === 'object' ? g : {};
+  const items = {}, deleted = {}, src = g.items && typeof g.items === 'object' ? g.items : {}, del = g.deleted && typeof g.deleted === 'object' ? g.deleted : {};
+  Object.keys(src).sort().forEach(id => { const it = normGItem(id, src[id]); if (it) items[id] = it; });
+  Object.keys(del).sort().forEach(id => { const t = Number(del[id]) || 0; if (t > 0 && /^(el-|ex:)/.test(id)) deleted[id] = t; });
+  Object.keys(items).forEach(id => { if (deleted[id] && deleted[id] >= items[id].updatedAt) delete items[id]; });
+  return { items, deleted };
+}
+// объединение двух копий: по каждой статье побеждает более свежая правка, удаление побеждает более старые правки
+function mergeGuide(a, b) {
+  a = normGuide(a); b = normGuide(b);
+  const items = {}, deleted = Object.assign({}, a.deleted);
+  Object.entries(b.deleted).forEach(([id, t]) => { if (!(deleted[id] >= t)) deleted[id] = t; });
+  new Set([...Object.keys(a.items), ...Object.keys(b.items)]).forEach(id => {
+    const x = a.items[id], y = b.items[id];
+    items[id] = !x ? y : !y ? x : y.updatedAt > x.updatedAt ? y : x;
+  });
+  return normGuide({ items, deleted });
+}
+
+let guide = normGuide(loadObj(LS_GUIDE));
+let gs = loadObj(LS_GSYNC);        // { sha, dirty }
+let gUp = loadObj(LS_GUP);         // свои видео, которые ещё не ушли в облако: { id: путь }
+let gSyncing = false, gTimer = null, gEditSeq = 0, vUploading = false;
+const saveGuide = () => saveObj(LS_GUIDE, guide);
+const saveGs = () => saveObj(LS_GSYNC, gs);
+const saveGUp = () => saveObj(LS_GUP, gUp);
+
+// статья в том виде, в каком её показываем: своя правка, иначе стартовый текст
+function gItem(id) {
+  const st = guide.items[id];
+  if (id.startsWith('ex:')) return Object.assign({ id, kind: 'ex' }, st || { name: '', text: '', videos: [], scheme: null, updatedAt: 0 });
+  if (st) return Object.assign({ id, kind: 'el' }, st);
+  const d = elDefault(id);
+  return d ? { id, kind: 'el', name: d.name, text: d.text, videos: [], scheme: null, updatedAt: 0 } : null;
+}
+function gWritable(id) {
+  if (!guide.items[id]) { const it = gItem(id); if (!it) return null; const { id: _i, kind: _k, ...rest } = it; guide.items[id] = clone(rest); }
+  return guide.items[id];
+}
+function gTouch(id) {
+  if (id && guide.items[id]) guide.items[id].updatedAt = Date.now();
+  saveGuide(); gEditSeq++; gs.dirty = true; saveGs();
+  scheduleGuideSync(2500);
+}
+function gElements() {
+  const list = GUIDE_EL.filter(e => guide.items[e.id] || !guide.deleted[e.id]).map(e => gItem(e.id));
+  Object.keys(guide.items).filter(id => id.startsWith('el-') && !GUIDE_EL_IDS.has(id)).forEach(id => list.push(gItem(id)));
+  return list;
+}
+function gExercises() {
+  return state.exercises.map(x => Object.assign(gItem('ex:' + x.id), { name: x.name, group: x.group, exId: x.id }));
+}
+
+/* облако: guide.json */
+function scheduleGuideSync(ms) { clearTimeout(gTimer); gTimer = setTimeout(() => { gTimer = null; guideSync(); }, ms); }
+async function guideGet() {
+  const r = await ghReq(gh, '/contents/' + GUIDE_FILE);
+  if (r.status === 404) return { missing: true };
+  if (!r.ok) throw { status: r.status };
+  const j = await r.json();
+  let text = j.encoding === 'base64' && j.content ? b64dec(j.content) : null;
+  if (text == null) {
+    const raw = await ghReq(gh, '/contents/' + GUIDE_FILE, { headers: { 'Accept': 'application/vnd.github.raw+json' } });
+    if (!raw.ok) throw { status: raw.status };
+    text = await raw.text();
+  }
+  let g = null;
+  try { const o = JSON.parse(text); g = o && o.guide ? normGuide(o.guide) : null; } catch (e) { g = null; }
+  if (!g) throw { status: 'bad-file' };
+  return { sha: j.sha, guide: g };
+}
+async function guideSync() {
+  if (!cloudOn() || gh.authError || gSyncing || navigator.onLine === false) return;
+  gSyncing = true;
+  let again = false;
+  try {
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const remote = await guideGet();
+      const seq = gEditSeq;
+      const merged = remote.missing ? guide : mergeGuide(guide, remote.guide);
+      if (JSON.stringify(merged) !== JSON.stringify(guide)) { guide = merged; saveGuide(); scheduleRender(); }
+      const nothing = !Object.keys(merged.items).length && !Object.keys(merged.deleted).length;
+      if ((remote.missing && nothing) || (!remote.missing && JSON.stringify(merged) === JSON.stringify(remote.guide))) {
+        gs.sha = remote.sha || null; if (gEditSeq === seq) gs.dirty = false; saveGs(); break;
+      }
+      const text = JSON.stringify({ app: 'billiard-trainer', kind: 'guide', format: 1, savedAt: new Date().toISOString(), guide: merged });
+      const body = JSON.stringify(Object.assign({ message: 'Справочник ' + stamp(), content: b64enc(text) }, remote.sha ? { sha: remote.sha } : {}));
+      const r = await ghReq(gh, '/contents/' + GUIDE_FILE, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body });
+      if (r.ok) {
+        const j = await r.json(); gs.sha = j.content && j.content.sha;
+        if (gEditSeq === seq) gs.dirty = false; else again = true;
+        saveGs(); break;
+      }
+      if (r.status !== 409 && r.status !== 422) throw { status: r.status };
+    }
+  } catch (e) { if (gs.dirty) again = true; }
+  gSyncing = false;
+  if (again) scheduleGuideSync(gs.dirty ? 20000 : 1500);
+  uploadVideos();
+}
+
+/* свои видео: на устройстве — IndexedDB, в облаке — videos/<id>.<расширение> */
+const IDB = (() => {
+  let dbp = null;
+  const open = () => dbp || (dbp = new Promise((res, rej) => {
+    const r = indexedDB.open('billiard-media', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('videos');
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => { dbp = null; rej(r.error); };
+  }));
+  const run = (mode, fn) => open().then(db => new Promise((res, rej) => {
+    const t = db.transaction('videos', mode), q = fn(t.objectStore('videos'));
+    t.oncomplete = () => res(q && q.result); t.onerror = () => rej(t.error); t.onabort = () => rej(t.error);
+  }));
+  return { get: k => run('readonly', s => s.get(k)), put: (k, v) => run('readwrite', s => s.put(v, k)), del: k => run('readwrite', s => s.delete(k)) };
+})();
+const blobB64 = blob => new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(String(fr.result).slice(String(fr.result).indexOf(',') + 1)); fr.onerror = () => rej(fr.error); fr.readAsDataURL(blob); });
+const vidURLs = {};      // id → objectURL, на время работы приложения
+const vidState = {};     // id → 'loading' | 'missing' | 'error'
+async function uploadVideos() {
+  if (!cloudOn() || gh.authError || vUploading || navigator.onLine === false) return;
+  const ids = Object.keys(gUp); if (!ids.length) return;
+  vUploading = true;
+  try {
+    for (const id of ids) {
+      const blob = await IDB.get(id).catch(() => null);
+      if (!blob) { delete gUp[id]; saveGUp(); continue; }
+      const content = await blobB64(blob);
+      const r = await ghReq(gh, '/contents/' + gUp[id], { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: 'Видео для справочника ' + stamp(), content }) });
+      if (r.ok || r.status === 422) { delete gUp[id]; saveGUp(); } else break;   // 422 — такой файл уже есть
+    }
+  } catch (e) { /* без сети — попробуем позже */ }
+  vUploading = false;
+  if (ui.tab === 'guide' && ui.gEdit) scheduleRender();
+}
+async function videoURL(v) {
+  if (vidURLs[v.id]) return vidURLs[v.id];
+  let blob = await IDB.get(v.id).catch(() => null);
+  if (!blob) {
+    if (!cloudOn() || gh.authError) { vidState[v.id] = 'missing'; return null; }
+    if (navigator.onLine === false) { vidState[v.id] = 'offline'; return null; }
+    const r = await ghReq(gh, '/contents/' + v.path, { headers: { 'Accept': 'application/vnd.github.raw+json' } });
+    if (!r.ok) { vidState[v.id] = r.status === 404 ? 'missing' : 'error'; return null; }
+    blob = new Blob([await r.blob()], { type: v.type || 'video/mp4' });
+    await IDB.put(v.id, blob).catch(() => {});
+  }
+  delete vidState[v.id];
+  return (vidURLs[v.id] = URL.createObjectURL(blob));
+}
+async function deleteCloudVideo(path) {
+  if (!cloudOn() || gh.authError || navigator.onLine === false) return;
+  try {
+    const r = await ghReq(gh, '/contents/' + path, { headers: { 'Accept': 'application/vnd.github.object+json' } });
+    if (!r.ok) return;
+    const j = await r.json();
+    await ghReq(gh, '/contents/' + path, { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: 'Видео удалено ' + stamp(), sha: j.sha }) });
+  } catch (e) { /* не страшно: файл просто останется в облаке */ }
+}
+
+// ссылки: Rutube, VK Видео и YouTube встраиваются в приложение, остальные открываются отдельно
+function embedOf(url) {
+  let m, u;
+  try { u = new URL(url); } catch (e) { return null; }
+  const host = u.hostname.replace(/^(www\.|m\.)/, '');
+  if (/(^|\.)youtube\.com$|^youtu\.be$|youtube-nocookie\.com$/.test(host)) {
+    m = url.match(/(?:[?&]v=|youtu\.be\/|\/shorts\/|\/embed\/|\/live\/)([\w-]{11})/);
+    return m ? { src: 'https://www.youtube-nocookie.com/embed/' + m[1] + '?autoplay=1&playsinline=1&rel=0', name: 'YouTube' } : { name: 'YouTube' };
+  }
+  if (/(^|\.)rutube\.ru$/.test(host)) {
+    m = u.pathname.match(/\/(?:video|shorts|play\/embed)\/(?:private\/)?([\da-f]{32})/i);
+    const p = u.searchParams.get('p');
+    return m ? { src: 'https://rutube.ru/play/embed/' + m[1] + '/?autoplay=1' + (p ? '&p=' + encodeURIComponent(p) : ''), name: 'Rutube' } : { name: 'Rutube' };
+  }
+  if (/(^|\.)(vk\.com|vk\.ru|vkvideo\.ru)$/.test(host)) {
+    if (/video_ext\.php/.test(u.pathname)) return { src: url, name: 'VK Видео' };
+    m = decodeURIComponent(url).match(/(?:video|clip)(-?\d+)_(\d+)/);
+    return m ? { src: 'https://vk.com/video_ext.php?oid=' + m[1] + '&id=' + m[2] + '&hd=2&autoplay=1', name: 'VK Видео' } : { name: 'VK Видео' };
+  }
+  return { name: host };
+}
+
+/* ===================== Справочник: экран ===================== */
+const nq = s => String(s || '').toLowerCase().replace(/ё/g, 'е');
+const G_ICON = {
+  search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 20 20"/></svg>',
+  video: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="2.5" y="5.5" width="13" height="13" rx="3"/><path d="M17 10.2 21.5 7.5v9L17 13.8z"/></svg>',
+  scheme: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="2.5" width="14" height="19" rx="2"/><circle cx="12" cy="8" r="1.8" fill="currentColor" stroke="none"/><circle cx="10" cy="15" r="1.8" fill="currentColor" stroke="none"/></svg>',
+  chev: '<svg class="g-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>',
+  play: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l12.5-7.5z"/></svg>'
+};
+const fmtSize = b => b >= 1048576 ? (Math.round(b / 104857.6) / 10).toString().replace('.', ',') + ' МБ' : Math.max(1, Math.round(b / 1024)) + ' КБ';
+const numRu = v => String(v).replace('.', ',');
+function ballsWord(d) {
+  const v = Math.round(d * 2) / 2;
+  return numRu(v) + ' ' + (Number.isInteger(v) ? plural(v, ['шар', 'шара', 'шаров']) : 'шара');
+}
+
+/* ---------- стол и схема ---------- */
+const XREF = [{ v: 0, rail: 1, n: 'левого борта' }, { v: TW, rail: 1, n: 'правого борта' }, { v: TW / 2, rail: 0, n: 'продольной линии' }];
+const YREF = [{ v: 0, rail: 1, n: 'верхнего борта' }, { v: TL, rail: 1, n: 'нижнего борта' }, { v: TL / 2, rail: 0, n: 'средней линии' }];
+// расстояние до борта — от края шара (сколько шаров поместится между ним и бортом), до линии — от точки касания стола
+function nearestRef(val, refs) {
+  return refs.map(r => ({ r, d: Math.max(0, Math.abs(val - r.v) - (r.rail ? .5 : 0)) })).sort((a, b) => a.d - b.d)[0];
+}
+function snapAxis(val, refs, max) {
+  val = Math.max(.5, Math.min(max - .5, val));
+  const { r, d } = nearestRef(val, refs), ds = Math.round(d * 2) / 2, sgn = val >= r.v ? 1 : -1;
+  return r2(Math.max(.5, Math.min(max - .5, r.v + sgn * (ds + (r.rail ? .5 : 0)))));
+}
+function measureText(sc, i) {
+  const b = sc && sc.balls[i]; if (!b) return '';
+  const part = (m, vertical) => m.d < .25 ? (m.r.rail ? 'у ' : 'на ') + m.r.n : ballsWord(m.d) + ' от ' + m.r.n;
+  return (b.t === 'cue' ? 'Биток' : 'Шар') + ': ' + part(nearestRef(b.x, XREF)) + ', ' + part(nearestRef(b.y, YREF));
+}
+function measureSVG(b) {
+  let h = '';
+  const mx = nearestRef(b.x, XREF), my = nearestRef(b.y, YREF);
+  const lbl = (x, y, t) => '<text class="t-lbl" x="' + x.toFixed(2) + '" y="' + y.toFixed(2) + '" font-size="1.15" text-anchor="middle" dominant-baseline="central">' + t + '</text>';
+  if (mx.d >= .25) {
+    const sx = mx.r.rail ? b.x + Math.sign(mx.r.v - b.x) * .5 : b.x, ex = mx.r.v;
+    h += '<line class="t-meas" x1="' + sx.toFixed(2) + '" y1="' + b.y + '" x2="' + ex.toFixed(2) + '" y2="' + b.y + '"/>' + lbl((sx + ex) / 2, b.y - .95, numRu(Math.round(mx.d * 2) / 2));
+  }
+  if (my.d >= .25) {
+    const sy = my.r.rail ? b.y + Math.sign(my.r.v - b.y) * .5 : b.y, ey = my.r.v;
+    h += '<line class="t-meas" x1="' + b.x + '" y1="' + sy.toFixed(2) + '" x2="' + b.x + '" y2="' + ey.toFixed(2) + '"/>' + lbl(b.x + (b.x > TW - 3 ? -1.4 : 1.4), (sy + ey) / 2, numRu(Math.round(my.d * 2) / 2));
+  }
+  return h;
+}
+function schemeCrop(sc) {
+  const ys = [];
+  sc.balls.forEach(b => ys.push(b.y)); sc.paths.forEach(p => ys.push(p.y1, p.y2));
+  if (!ys.length) return null;
+  if (Math.max(...ys) <= TL / 2 + 1.5) return 'top';
+  if (Math.min(...ys) >= TL / 2 - 1.5) return 'bottom';
+  return null;
+}
+const TBL_M = 1.7;
+function tableInner(sc, o) {
+  const m = TBL_M, f = v => (+v).toFixed(2), balls = sc ? sc.balls : [], paths = sc ? sc.paths : [];
+  const aid = o.id + '-arw';
+  let h = '<defs><marker id="' + aid + '" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.6" markerHeight="4.6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="t-arrowhead"/></marker></defs>';
+  h += '<rect class="t-frame" x="' + -m + '" y="' + -m + '" width="' + f(TW + 2 * m) + '" height="' + f(TL + 2 * m) + '" rx="1"/>';
+  h += '<rect class="t-cush" x="-.55" y="-.55" width="' + f(TW + 1.1) + '" height="' + f(TL + 1.1) + '" rx=".25"/>';
+  h += '<rect class="t-felt" x="0" y="0" width="' + f(TW) + '" height="' + f(TL) + '"/>';
+  h += '<line class="t-line" x1="0" y1="' + f(TL / 2) + '" x2="' + f(TW) + '" y2="' + f(TL / 2) + '"/>';
+  h += '<line class="t-line" x1="' + f(TW / 2) + '" y1="0" x2="' + f(TW / 2) + '" y2="' + f(TL) + '"/>';
+  h += '<line class="t-line t-house" x1="0" y1="' + f(TL * .75) + '" x2="' + f(TW) + '" y2="' + f(TL * .75) + '"/>';
+  [TL / 4, TL / 2, TL * .75].forEach(y => { h += '<circle class="t-spot" cx="' + f(TW / 2) + '" cy="' + f(y) + '" r=".17"/>'; });
+  const fy = -(m + .55) / 2;
+  for (let i = 1; i < 8; i++) if (i !== 4) h += '<circle class="t-dia" cx="' + f(fy) + '" cy="' + f(TL * i / 8) + '" r=".2"/><circle class="t-dia" cx="' + f(TW - fy) + '" cy="' + f(TL * i / 8) + '" r=".2"/>';
+  for (let i = 1; i < 4; i++) h += '<circle class="t-dia" cx="' + f(TW * i / 4) + '" cy="' + f(fy) + '" r=".2"/><circle class="t-dia" cx="' + f(TW * i / 4) + '" cy="' + f(TL - fy) + '" r=".2"/>';
+  [[0, 0], [TW, 0], [0, TL], [TW, TL]].forEach(([x, y]) => { h += '<circle class="t-pocket" cx="' + f(x) + '" cy="' + f(y) + '" r=".82"/>'; });
+  [[-.32, TL / 2], [TW + .32, TL / 2]].forEach(([x, y]) => { h += '<circle class="t-pocket" cx="' + f(x) + '" cy="' + f(y) + '" r=".72"/>'; });
+  paths.forEach((p, i) => {
+    const xy = 'x1="' + f(p.x1) + '" y1="' + f(p.y1) + '" x2="' + f(p.x2) + '" y2="' + f(p.y2) + '"';
+    h += '<line class="t-path" ' + xy + ' marker-end="url(#' + aid + ')"/>';
+  });
+  balls.forEach((b, i) => {
+    const attrs = o.gid != null ? ' data-action="g-ball" data-gid="' + esc(o.gid) + '" data-i="' + i + '"' : '';
+    h += '<g class="t-ball ' + (b.t === 'cue' ? 't-cue' : 't-obj') + (o.sel === i ? ' is-sel' : '') + '"' + attrs + '>' +
+      '<circle cx="' + f(b.x) + '" cy="' + f(b.y) + '" r=".5"/><circle class="t-shine" cx="' + f(b.x - .17) + '" cy="' + f(b.y - .18) + '" r=".13"/>' +
+      (o.gid != null ? '<circle class="t-tap" cx="' + f(b.x) + '" cy="' + f(b.y) + '" r="1.3"/>' : '') + '</g>';
+  });
+  if (o.sel != null && balls[o.sel]) h += measureSVG(balls[o.sel]);
+  return h;
+}
+function tableSVG(sc, o) {
+  const m = TBL_M;
+  let y0 = -m, y1 = TL + m;
+  if (o.crop === 'top') y1 = TL / 2 + 2.6; else if (o.crop === 'bottom') y0 = TL / 2 - 2.6;
+  const vb = [-m, y0, TW + 2 * m, y1 - y0].map(v => v.toFixed(2)).join(' ');
+  return '<svg class="tbl" id="' + o.id + '" viewBox="' + vb + '" role="img" aria-label="' + esc(o.label || 'Схема расстановки шаров') + '">' + tableInner(sc, o) + '</svg>';
+}
+function hitFig(id) {
+  const d = elDefault(id); if (!d || !d.hit) return '';
+  const dots = d.hit.map((p, i) => '<circle class="hd' + (i ? ' hd2' : '') + '" cx="' + p[0] + '" cy="' + p[1] + '" r=".17"/>').join('');
+  return '<figure class="g-hit"><svg viewBox="-1.15 -1.15 2.3 2.3" aria-hidden="true"><circle class="hb" r="1"/><path class="hx" d="M-1 0H1M0-1V1"/>' + dots + '</svg><figcaption>точка удара</figcaption></figure>';
+}
+
+/* ---------- плашки ---------- */
+function gText(text) {
+  const t = String(text || '').trim();
+  if (!t) return '<p class="g-empty">Описания пока нет</p>';
+  return t.split(/\n\s*\n/).map(p => '<p>' + esc(p.trim()).replace(/\n/g, '<br>') + '</p>').join('');
+}
+function gVideo(it, v) {
+  if (v.k === 'link') {
+    const e = embedOf(v.url) || { name: 'видео' };
+    if (!e.src) return '<a class="g-vlinkbox" href="' + esc(v.url) + '" target="_blank" rel="noopener">' + G_ICON.play + '<span>Открыть видео<small>' + esc(e.name) + '</small></span></a>';
+    const playing = ui.gPlay && ui.gPlay[v.id];
+    return '<div class="g-vwrap"><div class="g-video">' + (playing
+      ? '<iframe src="' + esc(e.src) + '" title="' + esc(it.name) + '" allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>'
+      : '<button class="g-vposter" data-action="g-play" data-vid="' + esc(v.id) + '" aria-label="Смотреть видео «' + esc(it.name) + '»"><span class="g-play">' + G_ICON.play + '</span><small>' + esc(e.name) + '</small></button>') +
+      '</div><a class="g-vsrc" href="' + esc(v.url) + '" target="_blank" rel="noopener">Открыть на ' + esc(e.name) + '</a></div>';
+  }
+  const url = vidURLs[v.id];
+  return '<div class="g-video g-vfile" data-gid="' + esc(it.id) + '" data-vid="' + esc(v.id) + '">' + (url
+    ? '<video controls playsinline preload="metadata" src="' + url + '#t=0.1"></video>'
+    : '<div class="g-vstatus">' + (vidState[v.id] === 'missing' ? 'Видео не найдено на этом устройстве' : vidState[v.id] === 'offline' ? 'Видео в облаке: нужен интернет' : vidState[v.id] === 'error' ? 'Не удалось загрузить видео' : 'Загружаю видео…') + '</div>') + '</div>';
+}
+function gLinks(it) {
+  if (it.kind === 'ex') {
+    const n = nq(it.name);
+    const els = gElements().filter(e => e.name && new RegExp('(^|[^а-яa-z])' + nq(e.name).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).test(n)).slice(0, 3);
+    return els.length ? '<div class="g-chips">' + els.map(e => '<button class="g-chip" data-action="g-goto" data-gid="' + esc(e.id) + '">Элемент: <b>' + esc(e.name) + '</b></button>').join('') + '</div>' : '';
+  }
+  const n = nq(it.name);
+  const exs = n ? gExercises().filter(x => new RegExp('(^|[^а-яa-z])' + n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).test(nq(x.name))).slice(0, 4) : [];
+  return exs.length ? '<div class="g-chips">' + exs.map(x => '<button class="g-chip" data-action="g-goto" data-gid="' + esc(x.id) + '">Упражнение: <b>' + esc(x.name) + '</b></button>').join('') + '</div>' : '';
+}
+function gBody(it) {
+  const k = safeId(it.id), gid = esc(it.id);
+  let h = '<div class="g-body">';
+  h += it.videos.length ? it.videos.map(v => gVideo(it, v)).join('') : '<button class="g-vempty" data-action="g-edit" data-gid="' + gid + '">+ Видео</button>';
+  h += '<div class="g-desc">' + (it.kind === 'el' ? hitFig(it.id) : '') + gText(it.text) + '</div>';
+  if (it.kind === 'ex') {
+    if (it.scheme) {
+      const sel = ui.gSel && ui.gSel[it.id] != null ? ui.gSel[it.id] : it.scheme.balls.findIndex(b => b.t === 'cue');
+      h += '<div class="g-scheme">' + tableSVG(it.scheme, { id: 'gt-' + k, gid: it.id, sel: sel >= 0 ? sel : null, crop: schemeCrop(it.scheme), label: 'Схема расстановки «' + it.name + '»' }) +
+        '<p class="g-meas">' + esc(measureText(it.scheme, sel)) + '</p><button class="link" id="gsch-' + k + '" data-action="g-scheme" data-gid="' + gid + '">Изменить схему</button></div>';
+    } else h += '<button class="g-scheme-empty" id="gsch-' + k + '" data-action="g-scheme" data-gid="' + gid + '">+ Схема расстановки шаров</button>';
+  }
+  h += gLinks(it);
+  h += '<div class="g-foot"><button class="link" id="ged-' + k + '" data-action="g-edit" data-gid="' + gid + '">Изменить</button></div>';
+  return h + '</div>';
+}
+function gEditBody(it) {
+  const k = safeId(it.id), gid = esc(it.id);
+  let h = '<div class="g-body is-edit">';
+  if (it.kind === 'el') h += '<label class="field" for="gnm-' + k + '"><span>Название</span><input id="gnm-' + k + '" data-gf="name" data-gid="' + gid + '" value="' + esc(it.name) + '" maxlength="80"></label>';
+  h += '<div class="g-edsec"><span class="sub-h">Видео</span>';
+  if (it.videos.length) h += '<ul class="g-vlist">' + it.videos.map(v => {
+    const label = v.k === 'link' ? (embedOf(v.url) || { name: 'ссылка' }).name : (v.name || 'своё видео');
+    const st = v.k === 'file' ? (gUp[v.id] ? (cloudOn() ? 'загружается в облако' : 'только на этом устройстве') : fmtSize(v.size) + ', в облаке') : v.url.replace(/^https?:\/\/(www\.)?/, '');
+    return '<li><span class="g-vic">' + G_ICON.video + '</span><span class="g-vname"><b>' + esc(label) + '</b><small>' + esc(st) + '</small></span>' +
+      '<button class="icon-btn danger" id="gvd-' + esc(v.id) + '" data-action="g-vdel" data-gid="' + gid + '" data-vid="' + esc(v.id) + '" aria-label="Убрать видео">×</button></li>';
+  }).join('') + '</ul>';
+  h += '<div class="g-vadd"><input id="gurl-' + k + '" type="url" inputmode="url" autocomplete="off" placeholder="Ссылка на Rutube, VK Видео или YouTube" aria-label="Ссылка на видео" enterkeyhint="done"><button class="btn" id="gul-' + k + '" data-action="g-vlink" data-gid="' + gid + '">Добавить</button></div>';
+  h += '<label class="btn g-vpick" for="gfl-' + k + '">' + G_ICON.video + 'Своё видео</label><input class="vh" id="gfl-' + k + '" type="file" accept="video/*" data-gf="vfile" data-gid="' + gid + '">';
+  h += '</div>';
+  h += '<label class="field" for="gtx-' + k + '"><span>Описание</span><textarea id="gtx-' + k + '" data-gf="text" data-gid="' + gid + '" rows="9">' + esc(it.text) + '</textarea></label>';
+  if (it.kind === 'ex') h += '<button class="btn" id="gsch-' + k + '" data-action="g-scheme" data-gid="' + gid + '">' + G_ICON.scheme + (it.scheme ? 'Изменить схему' : 'Нарисовать схему') + '</button>';
+  h += '<div class="g-foot"><button class="btn btn-primary" id="gdn-' + k + '" data-action="g-done" data-gid="' + gid + '">Готово</button>' +
+    (it.kind === 'el' ? '<button class="link link-danger" id="gdl-' + k + '" data-action="g-del" data-gid="' + gid + '">Удалить статью</button>' : '') + '</div>';
+  return h + '</div>';
+}
+function gCard(it) {
+  const k = safeId(it.id), open = ui.gOpen === it.id, gid = esc(it.id);
+  const tag = it.kind === 'ex' ? 'упражнение' + (it.group ? ' — ' + it.group : '') : 'элемент';
+  const badges = (it.videos.length ? G_ICON.video : '') + (it.scheme ? G_ICON.scheme : '');
+  return '<article class="g-card' + (open ? ' is-open' : '') + '" id="g-' + k + '" data-s="' + esc(nq(it.name + ' ' + (it.group || '') + ' ' + it.text)) + '">' +
+    '<button class="g-head" id="gh-' + k + '" data-action="g-open" data-gid="' + gid + '" aria-expanded="' + open + '"><span class="g-ttl"><b>' + esc(it.name) + '</b><small>' + esc(tag) + '</small></span>' +
+    (badges ? '<span class="g-badges" aria-hidden="true">' + badges + '</span>' : '') + G_ICON.chev + '</button>' +
+    (open ? (ui.gEdit === it.id ? gEditBody(it) : gBody(it)) : '') + '</article>';
+}
+function viewGuide() {
+  const els = gElements(), exs = gExercises();
+  let h = '<div class="g-search-wrap"><div class="g-search" role="search">' + G_ICON.search +
+    '<input id="g-q" type="search" placeholder="Поиск" value="' + esc(ui.gq || '') + '" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="search" aria-label="Поиск по справочнику">' +
+    '<button class="g-qx" id="g-qx" data-action="g-qclear" aria-label="Очистить поиск"' + (ui.gq ? '' : ' hidden') + '>×</button></div></div>';
+  h += '<section class="g-sec" aria-labelledby="gs-el"><h2 class="g-h" id="gs-el">Элементы</h2><div class="g-list">' + els.map(gCard).join('') + '</div></section>';
+  if (exs.length) h += '<section class="g-sec" aria-labelledby="gs-ex"><h2 class="g-h" id="gs-ex">Упражнения</h2><div class="g-list">' + exs.map(gCard).join('') + '</div></section>';
+  h += '<p class="empty" id="g-none" hidden>Ничего не найдено</p>';
+  h += '<button class="btn g-add" id="g-add" data-action="g-add-el">+ Свой элемент</button>';
+  return h;
+}
+function gFilter() {
+  const q = nq((ui.gq || '').trim());
+  let any = false;
+  document.querySelectorAll('#app .g-sec').forEach(sec => {
+    let n = 0;
+    sec.querySelectorAll('.g-card').forEach(c => { const ok = !q || c.dataset.s.includes(q); c.hidden = !ok; if (ok) n++; });
+    sec.hidden = !n; if (n) any = true;
+  });
+  const none = document.getElementById('g-none'); if (none) none.hidden = any;
+  const x = document.getElementById('g-qx'); if (x) x.hidden = !ui.gq;
+}
+
+/* ---------- редактор схемы (на весь экран) ---------- */
+const SE_TOOLS = [
+  ['cue', 'Биток', '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="#c0392b"/><circle cx="9.3" cy="9" r="2" fill="#fff" opacity=".6"/></svg>'],
+  ['obj', 'Шар', '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="#f3ecdc" stroke="rgba(0,0,0,.35)" stroke-width="1"/><circle cx="9.3" cy="9" r="2" fill="#fff" opacity=".8"/></svg>'],
+  ['path', 'Путь', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19 18 6"/><path d="M10 6h8v8"/></svg>'],
+  ['erase', 'Стереть', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 4.5 20 10l-9 9H6l-2.5-2.5z"/><path d="M9 10l5.5 5.5M11 19h9"/></svg>']
+];
+function viewSchemeEditor() {
+  const S = ui.schemeEdit;
+  return '<div class="se">' +
+    '<div class="se-top"><button class="icon-btn" id="se-x" data-action="se-cancel" aria-label="Выйти без сохранения">←</button>' +
+    '<div class="se-title"><b>' + esc(S.name) + '</b><small>Схема расстановки</small></div>' +
+    '<button class="btn btn-primary" id="se-ok" data-action="se-save">Готово</button></div>' +
+    '<div class="seg" role="toolbar" aria-label="Инструменты">' + SE_TOOLS.map(([k, l, ic]) =>
+      '<button id="se-t-' + k + '" data-action="se-tool" data-tool="' + k + '" aria-pressed="' + (S.tool === k) + '">' + ic + '<span>' + l + '</span></button>').join('') + '</div>' +
+    '<div class="se-board">' + tableSVG(S.sc, { id: 'se-svg', sel: S.sel, label: 'Стол для расстановки шаров' }) + '</div>' +
+    '<p class="se-meas" id="se-meas" aria-live="polite">' + esc(measureText(S.sc, S.sel)) + '</p>' +
+    '<div class="se-bottom"><button class="link" id="se-undo" data-action="se-undo"' + (S.hist.length ? '' : ' disabled') + '>Отменить</button>' +
+    '<button class="link link-muted" id="se-clear" data-action="se-clear"' + (S.sc.balls.length || S.sc.paths.length ? '' : ' disabled') + '>Очистить всё</button></div></div>';
+}
+function seBind() {
+  const svg = document.getElementById('se-svg'), S = ui.schemeEdit;
+  if (!svg || !S) return;
+  let act = null, before = '';
+  const toP = ev => { const pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY; const p = pt.matrixTransform(svg.getScreenCTM().inverse()); return { x: p.x, y: p.y }; };
+  const ballAt = (p, skip) => { let best = -1, bd = .95; S.sc.balls.forEach((b, i) => { const d = Math.hypot(b.x - p.x, b.y - p.y); if (i !== skip && d < bd) { bd = d; best = i; } }); return best; };
+  const segD = (p, q) => { const dx = q.x2 - q.x1, dy = q.y2 - q.y1, L2 = dx * dx + dy * dy || 1, t = Math.max(0, Math.min(1, ((p.x - q.x1) * dx + (p.y - q.y1) * dy) / L2)); return Math.hypot(p.x - q.x1 - t * dx, p.y - q.y1 - t * dy); };
+  const pockets = [[0, 0], [TW, 0], [0, TL], [TW, TL], [-.32, TL / 2], [TW + .32, TL / 2]];
+  const pathEnd = (p, skip) => {
+    const bi = ballAt(p, skip); if (bi >= 0) return { x: S.sc.balls[bi].x, y: S.sc.balls[bi].y };
+    const pk = pockets.find(([x, y]) => Math.hypot(x - p.x, y - p.y) < 1.4); if (pk) return { x: pk[0], y: pk[1] };
+    return { x: r2(Math.max(-.5, Math.min(TW + .5, p.x))), y: r2(Math.max(-.5, Math.min(TL + .5, p.y))) };
+  };
+  const place = (b, p) => { b.x = snapAxis(p.x, XREF, TW); b.y = snapAxis(p.y, YREF, TL); };
+  const redraw = () => {
+    svg.innerHTML = tableInner(S.sc, { id: 'se-svg', sel: S.sel });
+    const mEl = document.getElementById('se-meas'); if (mEl) mEl.textContent = measureText(S.sc, S.sel);
+  };
+  svg.addEventListener('pointerdown', ev => {
+    if (ev.button > 0 || act) return;
+    ev.preventDefault();
+    const p = toP(ev), bi = ballAt(p);
+    before = JSON.stringify(S.sc);
+    if (S.tool === 'erase') {
+      if (bi >= 0) { S.sc.balls.splice(bi, 1); S.sel = null; }
+      else { let pi = -1, bd = .7; S.sc.paths.forEach((q, i) => { const d = segD(p, q); if (d < bd) { bd = d; pi = i; } }); if (pi >= 0) S.sc.paths.splice(pi, 1); }
+      if (JSON.stringify(S.sc) !== before) { S.hist.push(before); seButtons(); }
+      redraw(); return;
+    }
+    if (S.tool === 'path') {
+      const st = bi >= 0 ? { x: S.sc.balls[bi].x, y: S.sc.balls[bi].y } : pathEnd(p);
+      S.sc.paths.push({ x1: st.x, y1: st.y, x2: st.x, y2: st.y });
+      act = { kind: 'path', from: bi };
+    } else {
+      let i = bi, off = { x: 0, y: 0 };
+      if (i >= 0) off = { x: S.sc.balls[i].x - p.x, y: S.sc.balls[i].y - p.y };
+      else {
+        if (S.tool === 'cue') i = S.sc.balls.findIndex(b => b.t === 'cue');   // биток один: переносим его
+        if (i < 0) { S.sc.balls.push({ x: .5, y: .5, t: S.tool === 'cue' ? 'cue' : 'obj' }); i = S.sc.balls.length - 1; }
+        place(S.sc.balls[i], p);
+      }
+      act = { kind: 'ball', i, off };
+      S.sel = i;
+    }
+    try { svg.setPointerCapture(ev.pointerId); } catch (e) { /* ничего */ }
+    redraw();
+  });
+  svg.addEventListener('pointermove', ev => {
+    if (!act) return;
+    const p = toP(ev);
+    if (act.kind === 'ball') place(S.sc.balls[act.i], { x: p.x + act.off.x, y: p.y + act.off.y });
+    else { const q = S.sc.paths[S.sc.paths.length - 1], e = pathEnd(p, act.from); q.x2 = e.x; q.y2 = e.y; }
+    redraw();
+  });
+  const up = () => {
+    if (!act) return;
+    if (act.kind === 'path') { const q = S.sc.paths[S.sc.paths.length - 1]; if (Math.hypot(q.x2 - q.x1, q.y2 - q.y1) < 1) S.sc.paths.pop(); }
+    act = null;
+    if (JSON.stringify(S.sc) !== before) S.hist.push(before);
+    if (S.hist.length > 60) S.hist.shift();
+    redraw(); seButtons();
+  };
+  svg.addEventListener('pointerup', up);
+  svg.addEventListener('pointercancel', up);
+}
+function seButtons() {
+  const S = ui.schemeEdit; if (!S) return;
+  const u = document.getElementById('se-undo'), c = document.getElementById('se-clear');
+  if (u) u.disabled = !S.hist.length;
+  if (c) c.disabled = !(S.sc.balls.length || S.sc.paths.length);
+}
+
+/* ---------- после отрисовки ---------- */
+function afterRenderGuide() {
+  if (ui.schemeEdit) { seBind(); return; }
+  if (ui.tab !== 'guide' || ui.sessionId) return;
+  gFilter();
+  document.querySelectorAll('#app .g-vfile[data-vid]').forEach(box => {
+    if (box.querySelector('video')) return;
+    const it = gItem(box.dataset.gid), v = it && it.videos.find(x => x.id === box.dataset.vid);
+    if (!v) return;
+    videoURL(v).then(url => {
+      if (!box.isConnected) return;
+      box.innerHTML = url ? '<video controls playsinline preload="metadata" src="' + url + '#t=0.1"></video>'
+        : '<div class="g-vstatus">' + (vidState[v.id] === 'offline' ? 'Видео в облаке: нужен интернет' : vidState[v.id] === 'missing' ? 'Видео не найдено на этом устройстве' : 'Не удалось загрузить видео') + '</div>';
+    }).catch(() => { if (box.isConnected) box.innerHTML = '<div class="g-vstatus">Не удалось загрузить видео</div>'; });
+  });
+  if (ui.gScroll) {
+    const el = document.getElementById('g-' + safeId(ui.gScroll)); ui.gScroll = null;
+    if (el) { const top = el.getBoundingClientRect().top + window.scrollY - 84; window.scrollTo({ top: Math.max(0, top), behavior: reduceMotion ? 'auto' : 'smooth' }); }
+  }
+  if (ui.gFocus) { const el = document.getElementById(ui.gFocus); ui.gFocus = null; if (el) { el.focus({ preventScroll: true }); if (el.select) el.select(); } }
+}
+
+/* ---------- действия ---------- */
+async function addVideoFile(id, file) {
+  if (!file) return;
+  if (!/^video\//.test(file.type) && !/\.(mp4|mov|m4v|webm)$/i.test(file.name)) { toast('Это не видео'); return; }
+  if (file.size > VIDEO_MAX) { toast('Видео больше 50 МБ: обрежь его в «Фото» и попробуй снова'); return; }
+  const vid = uid('v').replace(/[^\w-]/g, '');
+  const ext = ((file.name.match(/\.([a-z0-9]{2,5})$/i) || [])[1] || (file.type.split('/')[1] || 'mp4')).toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 5) || 'mp4';
+  try { await IDB.put(vid, file); } catch (e) { toast('Не хватает места на устройстве'); return; }
+  const it = gWritable(id); if (!it) return;
+  it.videos.push({ id: vid, k: 'file', path: 'videos/' + vid + '.' + ext, name: file.name.slice(0, 120), size: file.size, type: file.type || 'video/mp4' });
+  vidURLs[vid] = URL.createObjectURL(file);
+  gUp[vid] = 'videos/' + vid + '.' + ext; saveGUp();
+  gTouch(id); render();
+  toast(cloudOn() ? 'Видео добавлено, отправляю в облако' : 'Видео добавлено на это устройство');
+  uploadVideos();
+}
+function removeVideo(id, vid) {
+  const it = gWritable(id); if (!it) return;
+  const v = it.videos.find(x => x.id === vid); if (!v) return;
+  it.videos = it.videos.filter(x => x.id !== vid);
+  if (v.k === 'file') {
+    IDB.del(vid).catch(() => {});
+    if (vidURLs[vid]) { URL.revokeObjectURL(vidURLs[vid]); delete vidURLs[vid]; }
+    if (gUp[vid]) { delete gUp[vid]; saveGUp(); } else deleteCloudVideo(v.path);
+  }
+  gTouch(id);
+}
+Object.assign(actions, {
+  'g-open': el => {
+    const id = el.dataset.gid;
+    if (ui.gOpen === id) { ui.gOpen = null; ui.gEdit = null; } else { ui.gOpen = id; ui.gEdit = null; ui.gScroll = id; }
+    render();
+  },
+  'g-edit': el => { ui.gOpen = ui.gEdit = el.dataset.gid; render(); },
+  'g-done': () => { ui.gEdit = null; render(); },
+  'g-qclear': () => { ui.gq = ''; const q = document.getElementById('g-q'); if (q) { q.value = ''; q.focus(); } gFilter(); },
+  'g-goto': el => { ui.gq = ''; ui.gOpen = el.dataset.gid; ui.gEdit = null; ui.gScroll = el.dataset.gid; render(); },
+  'g-play': el => {
+    if (navigator.onLine === false) { toast('Для этого видео нужен интернет'); return; }
+    ui.gPlay = ui.gPlay || {}; ui.gPlay[el.dataset.vid] = true; render();
+  },
+  'g-ball': el => { ui.gSel = ui.gSel || {}; ui.gSel[el.dataset.gid] = +el.dataset.i; render(); },
+  'g-vlink': el => {
+    const id = el.dataset.gid, inp = document.getElementById('gurl-' + safeId(id));
+    let url = (inp && inp.value || '').trim();
+    if (url && !/^https?:\/\//i.test(url)) url = 'https://' + url;
+    try { new URL(url); } catch (e) { url = ''; }
+    if (!url || !/^https?:\/\/[^\s/]+\.[^\s/]+/i.test(url)) { toast('Вставь ссылку на видео'); if (inp) inp.focus(); return; }
+    const it = gWritable(id); if (!it) return;
+    it.videos.push({ id: uid('v').replace(/[^\w-]/g, ''), k: 'link', url });
+    gTouch(id); render();
+  },
+  'g-vdel': el => { removeVideo(el.dataset.gid, el.dataset.vid); render(); },
+  'g-add-el': () => {
+    const id = 'el-' + uid('u').replace(/[^\w-]/g, '');
+    guide.items[id] = { name: 'Новый элемент', text: '', videos: [], scheme: null, updatedAt: Date.now() };
+    gTouch(id);
+    ui.gq = ''; ui.gOpen = ui.gEdit = id; ui.gScroll = id; ui.gFocus = 'gnm-' + safeId(id); render();
+  },
+  'g-del': el => { ui.modal = { type: 'g-del', gid: el.dataset.gid }; render(); },
+  'confirm-g-del': () => {
+    const id = ui.modal.gid; ui.modal = null;
+    const it = guide.items[id];
+    if (it) it.videos.filter(v => v.k === 'file').forEach(v => { IDB.del(v.id).catch(() => {}); if (gUp[v.id]) { delete gUp[v.id]; saveGUp(); } else deleteCloudVideo(v.path); });
+    delete guide.items[id]; guide.deleted[id] = Date.now();
+    gTouch(null);
+    ui.gOpen = ui.gEdit = null; render(); toast('Статья удалена');
+  },
+  'g-scheme': el => {
+    const it = gItem(el.dataset.gid); if (!it) return;
+    const sc = it.scheme ? clone(it.scheme) : { balls: [], paths: [] };
+    const name = it.kind === 'ex' ? ((exById(it.id.slice(3)) || {}).name || 'Упражнение') : it.name;
+    ui.schemeEdit = { gid: it.id, name, sc, tool: sc.balls.some(b => b.t === 'cue') ? 'obj' : 'cue', sel: null, hist: [], y: window.scrollY };
+    render(); window.scrollTo(0, 0);
+  },
+  'se-tool': el => { ui.schemeEdit.tool = el.dataset.tool; render(); },
+  'se-undo': () => { const S = ui.schemeEdit; if (!S.hist.length) return; S.sc = JSON.parse(S.hist.pop()); S.sel = null; render(); },
+  'se-clear': () => { const S = ui.schemeEdit; S.hist.push(JSON.stringify(S.sc)); S.sc = { balls: [], paths: [] }; S.sel = null; render(); },
+  'se-save': () => {
+    const S = ui.schemeEdit, it = gWritable(S.gid);
+    if (it) { it.scheme = normScheme(S.sc); gTouch(S.gid); }
+    ui.schemeEdit = null; ui.gOpen = S.gid; ui.gSel = ui.gSel || {}; delete ui.gSel[S.gid];
+    render(); window.scrollTo(0, S.y);
+  },
+  'se-cancel': () => { const y = ui.schemeEdit.y; ui.schemeEdit = null; render(); window.scrollTo(0, y); }
+});
+document.addEventListener('input', ev => {
+  const el = ev.target;
+  if (el.id === 'g-q') { ui.gq = el.value; gFilter(); return; }
+  const f = el.dataset && el.dataset.gf, id = el.dataset && el.dataset.gid;
+  if (!f || !id) return;
+  if (f === 'name') {
+    const it = gWritable(id);
+    if (it && el.value.trim()) { it.name = el.value.trim(); gTouch(id); const t = document.querySelector('#g-' + safeId(id) + ' .g-ttl b'); if (t) t.textContent = it.name; }
+  }
+  else if (f === 'text') { const it = gWritable(id); if (it) { it.text = el.value; gTouch(id); } }
+});
+document.addEventListener('change', ev => {
+  const el = ev.target, f = el.dataset && el.dataset.gf, id = el.dataset && el.dataset.gid;
+  if (f === 'vfile') { const file = el.files && el.files[0]; el.value = ''; addVideoFile(id, file); }
+  else if (f === 'name') { const it = gItem(id); if (it && !el.value.trim()) el.value = it.name; }   // без перерисовки: иначе поле, в которое перешёл палец, заменится новым
+});
+document.addEventListener('keydown', ev => {
+  if (ev.key === 'Enter' && ev.target.id && ev.target.id.startsWith('gurl-')) { ev.preventDefault(); const b = document.getElementById('gul-' + ev.target.id.slice(5)); if (b) b.click(); }
+  else if (ev.key === 'Enter' && ev.target.id === 'g-q') { ev.preventDefault(); ev.target.blur(); }
+});
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') scheduleGuideSync(800); });
+window.addEventListener('online', () => scheduleGuideSync(500));
+setInterval(() => { if (document.visibilityState !== 'hidden' && !gTimer) guideSync(); }, 60000);
+scheduleGuideSync(1500);
+
 /* ---------- нижняя панель вкладок (iOS 26) ---------- */
 const TB_TABS = [
   ['log', 'Тренировки', '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M7 2.5a1 1 0 0 1 1 1V5h8V3.5a1 1 0 1 1 2 0V5h.5A3.5 3.5 0 0 1 22 8.5v10a3.5 3.5 0 0 1-3.5 3.5h-13A3.5 3.5 0 0 1 2 18.5v-10A3.5 3.5 0 0 1 5.5 5H6V3.5a1 1 0 0 1 1-1ZM4 10v8.5c0 .83.67 1.5 1.5 1.5h13c.83 0 1.5-.67 1.5-1.5V10H4Z"/><rect x="6" y="12" width="3.2" height="3" rx=".9"/><rect x="10.4" y="12" width="3.2" height="3" rx=".9"/><rect x="14.8" y="12" width="3.2" height="3" rx=".9"/><rect x="6" y="16.2" width="3.2" height="2.6" rx=".9"/><rect x="10.4" y="16.2" width="3.2" height="2.6" rx=".9"/></svg>'],
   ['progress', 'Прогресс', '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="3" y="13" width="4.6" height="8.5" rx="1.6"/><rect x="9.7" y="8.2" width="4.6" height="13.3" rx="1.6"/><rect x="16.4" y="3" width="4.6" height="18.5" rx="1.6"/></svg>'],
-  ['programs', 'Комплексы', '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="4.6" cy="6" r="2"/><circle cx="4.6" cy="12" r="2"/><circle cx="4.6" cy="18" r="2"/><rect x="8.6" y="4.4" width="12.8" height="3.2" rx="1.6"/><rect x="8.6" y="10.4" width="12.8" height="3.2" rx="1.6"/><rect x="8.6" y="16.4" width="12.8" height="3.2" rx="1.6"/></svg>']
+  ['programs', 'Комплексы', '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="4.6" cy="6" r="2"/><circle cx="4.6" cy="12" r="2"/><circle cx="4.6" cy="18" r="2"/><rect x="8.6" y="4.4" width="12.8" height="3.2" rx="1.6"/><rect x="8.6" y="10.4" width="12.8" height="3.2" rx="1.6"/><rect x="8.6" y="16.4" width="12.8" height="3.2" rx="1.6"/></svg>'],
+  ['guide', 'Справочник', '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M11 5.4C9.1 4.2 6.8 3.6 4.4 3.6c-.86 0-1.66.08-2.4.24v14.9c.76-.17 1.56-.26 2.4-.26 2.45 0 4.7.66 6.6 1.86V5.4Z"/><path d="M13 5.4c1.9-1.2 4.2-1.8 6.6-1.8.86 0 1.66.08 2.4.24v14.9a11 11 0 0 0-2.4-.26c-2.45 0-4.7.66-6.6 1.86V5.4Z"/></svg>']
 ];
 const tb = document.createElement('nav');
 tb.className = 'tb'; tb.id = 'tabbar'; tb.setAttribute('role', 'tablist'); tb.setAttribute('aria-label', 'Разделы');
@@ -1952,7 +2801,7 @@ function tbKick() {
   if (!P.raf) { P.t = 0; P.raf = requestAnimationFrame(tbFrame); }
 }
 function syncTabbar() {
-  tb.classList.toggle('is-hidden', !!ui.sessionId || ui.tab === 'backup');
+  tb.classList.toggle('is-hidden', !!ui.sessionId || ui.tab === 'backup' || !!ui.schemeEdit);
   if (P.down) return;
   const c = tbCenter(tbIndex());
   if (P.x == null || !tb.offsetWidth) { P.x = P.tx = c; tbDraw(); return; }
