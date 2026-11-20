@@ -204,15 +204,9 @@ h1, h2, h3 { text-wrap: balance; margin: 0; }
 .set { border: 1px solid var(--line); background: var(--surface-2); border-radius: 999px; padding: 4px 10px; font-size: 14px; font-variant-numeric: tabular-nums; }
 .set[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
 .counters { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.counters.made-only { grid-template-columns: minmax(0, 1fr) 64px; }
+.counters.made-only { grid-template-columns: minmax(0, 1fr); }
 .counter { position: relative; display: grid; grid-template-columns: 46px minmax(0, 1fr) 46px; grid-template-rows: auto 48px; gap: 4px; align-items: center; border-radius: 13px; padding: 6px 6px 8px; }
 .made-only .counter { grid-template-columns: 56px minmax(0, 1fr) 56px; }
-.c-hide { position: absolute; top: 1px; right: 3px; width: 28px; height: 22px; border: 0; background: none; padding: 0; color: var(--chalk); opacity: .7; font-size: 17px; line-height: 1; border-radius: 6px; }
-.c-hide:hover { opacity: 1; }
-.c-stub { display: grid; place-content: center; justify-items: center; gap: 0; height: 100%; min-height: 80px; border: 1.5px dashed var(--chalk); border-radius: 13px; background: transparent; color: var(--chalk); padding: 0; opacity: .8; }
-.c-stub b { font-size: 22px; line-height: 1; font-weight: 600; }
-.c-stub span { font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
-.c-stub:hover { opacity: 1; background: var(--chalk-soft); }
 .c-shots { background: var(--chalk-soft); }
 .c-made { background: var(--felt-soft); }
 .c-lbl { grid-column: 1 / -1; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 0 4px; }
@@ -1152,15 +1146,13 @@ function entryCard(e) {
   if (st.pct != null) pct = '<span class="ex-pct">' + st.pct + '%</span>';
   else if (st.unknownShots && st.made) pct = '<span class="ex-pct small">забито ' + st.made + '</span>';
   let html = '<article class="ex' + (st.done ? '' : ' is-idle') + '">' +
-    '<div class="ex-head"><div class="ex-title"><h3 class="ex-name">' + esc(name) + '</h3>' + (e.target ? '<span class="ex-target">норма ' + e.target + '</span>' : '') + '</div>' + pct +
-    '<button class="icon-btn danger" id="rm-' + k + '" data-action="remove-entry" data-ex="' + ex + '" aria-label="Убрать «' + esc(name) + '» из тренировки" title="Убрать из тренировки">×</button></div>';
+    '<div class="ex-head"><div class="ex-title"><h3 class="ex-name">' + esc(name) + '</h3>' + (e.target ? '<span class="ex-target">норма ' + e.target + '</span>' : '') + '</div>' + pct + '</div>';
   if (multi) {
     html += '<div class="sets" role="group" aria-label="Серии"><span class="sets-lbl">Серии:</span>' + e.sets.map((x, i) =>
       '<button class="set" id="set-' + k + '-' + i + '" data-action="set-select" data-ex="' + ex + '" data-i="' + i + '" aria-pressed="' + (i === ai) + '">' + (i + 1) + '(' + (setVal(x, e) || '–') + ')</button>').join('') + '</div>';
   }
   html += mo
-    ? '<div class="counters made-only">' + counter(e, set, 'made', 'Забито', k, ai, multi) +
-      '<button class="c-stub" id="shon-' + k + '" data-action="toggle-shots" data-ex="' + ex + '" aria-label="Вернуть счётчик ударов" title="Вернуть счётчик ударов"><b>+</b><span>удары</span></button></div>'
+    ? '<div class="counters made-only">' + counter(e, set, 'made', 'Забито', k, ai, multi) + '</div>'
     : '<div class="counters">' + counter(e, set, 'shots', 'Удары', k, ai, multi) + counter(e, set, 'made', 'Забито', k, ai, multi) + '</div>';
   if (e.target) {
     const w = v => Math.min(100, v / e.target * 100).toFixed(1) + '%';
@@ -1181,7 +1173,6 @@ function counter(e, set, kind, label, k, ai, multi) {
   const ex = esc(e.exId);
   const id = 'in-' + k + '-' + kind;
   return '<div class="counter c-' + kind + '"><label class="c-lbl" for="' + id + '">' + label + (multi ? ' <span>серия ' + (ai + 1) + '</span>' : '') + '</label>' +
-    (kind === 'shots' ? '<button class="c-hide" id="shoff-' + k + '" data-action="toggle-shots" data-ex="' + ex + '" aria-label="Убрать счётчик ударов" title="Убрать счётчик ударов">×</button>' : '') +
     '<button class="c-btn" id="dec-' + k + '-' + kind + '" data-action="count" data-ex="' + ex + '" data-kind="' + kind + '" data-d="-1" aria-label="' + label + ': минус один">−</button>' +
     '<input class="c-val" id="' + id + '" type="number" inputmode="numeric" min="0" step="1" data-field="count" data-ex="' + ex + '" data-kind="' + kind + '" value="' + (v == null ? '' : v) + '" placeholder="—">' +
     '<button class="c-btn plus" id="inc-' + k + '-' + kind + '" data-action="count" data-ex="' + ex + '" data-kind="' + kind + '" data-d="1" aria-label="' + label + ': плюс один">+</button></div>';
@@ -1375,10 +1366,6 @@ function viewModal() {
     const p = progById(m.pgId);
     body = '<h2 id="m-title">Удалить комплекс «' + esc(p ? p.name : '') + '»?</h2>' +
       '<div class="modal-actions"><button class="btn" id="m-cancel" data-action="modal-close">Отмена</button><button class="btn btn-danger-solid" id="m-ok" data-action="confirm-pg-delete">Удалить</button></div>';
-  } else if (m.type === 'rm-entry') {
-    const e = cur() && cur().entries.find(x => x.exId === m.exId);
-    body = '<h2 id="m-title">Убрать «' + esc(e ? nameOf(e) : '') + '» из тренировки?</h2>' +
-      '<div class="modal-actions"><button class="btn" id="m-cancel" data-action="modal-close">Отмена</button><button class="btn btn-danger-solid" id="m-ok" data-action="confirm-rm-entry">Убрать</button></div>';
   } else if (m.type === 'copy') {
     body = '<h2 id="m-title">Тренировка текстом</h2><textarea id="copy-area" readonly>' + esc(m.text) + '</textarea>' +
       '<div class="modal-actions"><button class="btn" id="m-cancel" data-action="modal-close">Закрыть</button><button class="btn btn-primary" id="m-copy" data-action="copy-again">Скопировать</button></div>';
@@ -1507,34 +1494,11 @@ const actions = {
     ui.activeSet[ui.sessionId + ':' + e.exId] = Math.max(0, i - 1);
     persistSession(ui.sessionId); render();
   },
-  'remove-entry': el => {
-    const e = findEntry(el.dataset.ex); if (!e) return;
-    if (entryStats(e).done) { ui.modal = { type: 'rm-entry', exId: e.exId }; render(); return; }
-    cur().entries = cur().entries.filter(x => x !== e);
-    persistSession(ui.sessionId); render();
-  },
-  'confirm-rm-entry': () => {
-    const exId = ui.modal.exId; ui.modal = null;
-    cur().entries = cur().entries.filter(x => x.exId !== exId);
-    persistSession(ui.sessionId); render();
-  },
   'toggle-add': () => { ui.addOpen = !ui.addOpen; render(); },
   'add-entry': el => {
     const x = exById(el.dataset.ex); if (!x || findEntry(x.id)) return;
     cur().entries.push(newEntry(x));
     persistSession(ui.sessionId); render();
-  },
-  // убрать / вернуть счётчик ударов: меняется и в этой тренировке, и в самом упражнении для следующих тренировок.
-  // Записанные удары не стираются — при возврате счётчика они снова видны.
-  'toggle-shots': el => {
-    const e = findEntry(el.dataset.ex); if (!e) return;
-    e.madeOnly = !e.madeOnly;
-    // пока ударов не было видно, забитые могли добавляться без ударов — ударов не может быть меньше забитых
-    if (!e.madeOnly) e.sets.forEach(s => { if (s.shots != null && s.made > s.shots) s.shots = s.made; });
-    const x = exById(e.exId);
-    if (x) { if (e.madeOnly) x.madeOnly = true; else delete x.madeOnly; persistConfig(); }
-    persistSession(ui.sessionId); render();
-    const f = document.getElementById((e.madeOnly ? 'shon-' : 'shoff-') + safeId(e.exId)); if (f) f.focus({ preventScroll: true });
   },
   'copy-text': copyText,
   'copy-again': async () => {
@@ -1652,8 +1616,21 @@ document.addEventListener('change', ev => {
   } else if (f === 'ex-group') renderSoon();
   else if (f === 'opt-auto') { state.options.autoShot = el.checked; persistConfig(); render(); }
   else if (f === 'ex-shots') {
+    // счётчик ударов включается и выключается только здесь (настройки упражнения в комплексе и «Все упражнения»);
+    // выбор сразу действует во всех тренировках с этим упражнением. Записанные удары не стираются.
     const x = exById(el.dataset.ex); if (!x) return;
-    if (el.checked) delete x.madeOnly; else x.madeOnly = true;
+    const mo = !el.checked, now = Date.now();
+    if (mo) x.madeOnly = true; else delete x.madeOnly;
+    Object.values(state.sessions).forEach(sess => {
+      let changed = false;
+      sess.entries.forEach(e => {
+        if (e.exId !== x.id || e.madeOnly === mo) return;
+        e.madeOnly = mo; changed = true;
+        // пока ударов не было видно, забитые могли добавляться без ударов — ударов не может быть меньше забитых
+        if (!mo) e.sets.forEach(st => { if (st.shots != null && st.made > st.shots) st.shots = st.made; });
+      });
+      if (changed) sess.updatedAt = now;
+    });
     persistConfig(); render();
   }
 });
