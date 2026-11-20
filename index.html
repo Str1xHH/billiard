@@ -437,7 +437,7 @@ td.num, th.num { text-align: right; }
   bottom: max(14px, calc(env(safe-area-inset-bottom) - 6px));
   width: min(calc(100vw - 28px), 440px); height: 66px;
   transform: translateX(-50%);
-  display: grid; grid-template-columns: repeat(4, 1fr); align-items: stretch;
+  display: grid; grid-template-columns: repeat(var(--tb-n, 4), 1fr); align-items: stretch;
   padding: 5px; border-radius: 999px;
   background: linear-gradient(180deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, 0)), var(--tb-bg);
   border: 1px solid var(--tb-edge);
@@ -458,7 +458,7 @@ td.num, th.num { text-align: right; }
 /* зелёная копия иконок и подписей, вырезанная ровно по форме линзы/капсулы (clip-path считает скрипт) */
 .tb-acc {
   position: absolute; inset: 0; z-index: 3; pointer-events: none;
-  display: grid; grid-template-columns: repeat(4, 1fr); padding: 5px;
+  display: grid; grid-template-columns: repeat(var(--tb-n, 4), 1fr); padding: 5px;
   clip-path: inset(50% 50% 50% 50%);
 }
 .tb-acc .tb-item { color: var(--tb-acc); }
@@ -484,6 +484,43 @@ td.num, th.num { text-align: right; }
 @media (prefers-reduced-transparency: reduce) {
   .tb { background: var(--surface); }
 }
+
+/* ===================== Друзья и таблица лидеров ===================== */
+.btn-login { justify-self: start; gap: 10px; text-decoration: none; }
+.btn-login svg { width: 20px; height: 20px; flex: none; }
+.fr-wait { margin: 0; font-size: 14px; color: var(--felt); font-weight: 600; }
+.fr-small { font-size: 13px; }
+.ava { position: relative; flex: none; border-radius: 50%; overflow: hidden; background: var(--felt-soft); color: var(--felt); display: inline-grid; place-items: center; font-weight: 700; line-height: 1; }
+.ava img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.lb-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.lb { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.lb-row { display: grid; grid-template-columns: 30px auto minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 10px 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); }
+.lb-row.is-me { border-color: var(--felt); box-shadow: inset 0 0 0 1px var(--felt), var(--shadow); }
+.lb-place { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-family: var(--font-display); font-weight: 700; font-size: 14px; background: var(--surface-2); border: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+.lb-place.p1 { background: #f2c94c; border-color: #d4a514; color: #3b2a00; }
+.lb-place.p2 { background: #d6dce1; border-color: #a9b3bc; color: #25303a; }
+.lb-place.p3 { background: #e3a772; border-color: #bd7a41; color: #3a1f06; }
+.lb-name { min-width: 0; display: grid; }
+.lb-name b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lb-name small { color: var(--muted); font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lb-me { font-style: normal; font-size: 11px; font-weight: 700; color: var(--felt); background: var(--felt-soft); border-radius: 999px; padding: 1px 7px; margin-left: 6px; vertical-align: 2px; }
+.lb-val { display: grid; justify-items: end; text-align: right; }
+.lb-val b { font-family: var(--font-display); font-size: 18px; color: var(--felt); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.lb-val small { color: var(--muted); font-size: 12.5px; white-space: nowrap; }
+.lb-note { font-size: 13px; }
+.fr-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.fr-row { display: flex; align-items: center; gap: 10px; }
+.fr-row .lb-name { flex: 1; }
+.fr-acts { display: flex; gap: 6px; flex: none; }
+.btn-sm { padding: 6px 10px; font-size: 14px; border-radius: 9px; }
+.fr-add { display: flex; gap: 8px; }
+.fr-add .inline-in { flex: 1; min-width: 0; padding: 9px 12px; font-size: 16px; }
+.fr-share { justify-self: start; text-align: left; }
+.fr-me { display: flex; align-items: center; gap: 12px; }
+.auth-page { margin-top: 18vh; }
+.tb-item.has-badge::after { content: ""; position: absolute; top: 8px; left: calc(50% + 7px); width: 9px; height: 9px; border-radius: 50%; background: var(--danger); }
+.tb.tb-many .tb-item { font-size: 10.5px; letter-spacing: 0; }
+@media (max-width: 360px) { .tb.tb-many .tb-item { font-size: 9.5px; } }
 
 /* ===================== Справочник ===================== */
 .vh { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; opacity: 0; }
@@ -636,6 +673,43 @@ td.num, th.num { text-align: right; }
 <script>
 (() => {
 'use strict';
+
+/* ---------- сервер аккаунтов (Yandex Cloud, папка api/) ---------- */
+// Пусто — аккаунты и вкладка «Друзья» выключены, приложение работает как раньше.
+const API_URL = '';
+const APP_HOME = location.origin + location.pathname;
+const AUTH_Q = new URLSearchParams(location.search);
+// Сюда GitHub возвращает после входа (?code=…&state=…). На iPhone это открывается в Safari, а не в установленном
+// приложении, поэтому вход завершается на сервере, а приложение забирает ключ по state само.
+if (API_URL && AUTH_Q.get('code') && AUTH_Q.get('state')) { authCallback(); return; }
+function authCallback() {
+  const code = AUTH_Q.get('code'), st = AUTH_Q.get('state');
+  try { history.replaceState(null, '', location.pathname); } catch (e) { /* ignore */ }
+  let pend = null;
+  try { pend = JSON.parse(localStorage.getItem('billiard-auth-pending-v1') || 'null'); } catch (e) { pend = null; }
+  const same = !!(pend && pend.state === st);   // эта вкладка делит хранилище с приложением (компьютер, Safari)
+  const sp = document.getElementById('splash'); if (sp) sp.remove();
+  const app = document.getElementById('app');
+  const e2 = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const show = (title, text, extra) => { app.innerHTML = '<section class="card stack auth-page"><h2 class="h2">' + title + '</h2><p class="bk-muted">' + text + '</p>' + (extra || '') + '</section>'; };
+  const post = body => fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=UTF-8' }, body: JSON.stringify(body) }).then(r => r.json());
+  show('Вход…', 'Проверяю вход через GitHub');
+  post({ a: 'auth-finish', code, state: st }).then(j => {
+    if (!j || !j.token) throw j;
+    const who = e2(j.user && (j.user.name || j.user.login));
+    if (same) {
+      localStorage.setItem('billiard-acct-v1', JSON.stringify({ token: j.token, user: j.user, ver: {}, dirty: { data: true, guide: true } }));
+      localStorage.removeItem('billiard-auth-pending-v1');
+      post({ a: 'auth-poll', state: st }).catch(() => {});   // вторая копия ключа на сервере больше не нужна
+      show('Готово, ' + who + '!', 'Вход выполнен. Эту вкладку можно закрыть — приложение уже знает о входе.', '<a class="btn btn-primary" href="' + e2(APP_HOME) + '">Открыть приложение</a>');
+      setTimeout(() => { try { window.close(); } catch (e) { /* ignore */ } }, 1200);
+    } else {
+      show('Готово, ' + who + '!', 'Вход выполнен. Закрой это окно (кнопка «Готово» или «Закрыть») и вернись в приложение «Бильярд» — вход подтянется сам за пару секунд.');
+    }
+  }).catch(e => {
+    show('Не получилось войти', e2((e && e.message) || 'Нет связи с сервером.') + ' Вернись в приложение и нажми «Войти через GitHub» ещё раз.');
+  });
+}
 
 /* ---------- стартовые данные (тренировки подтягиваются из облака или из файла-копии) ---------- */
 const SEED = {
@@ -908,6 +982,7 @@ function markDirty() {
   if (!meta.touched) { meta.touched = true; saveMeta(); }
   setDirty(true);
   if (cloudOn() && !gh.authError) schedulePush(PUSH_DELAY);
+  acctMark('data');
   updateSyncPill();
 }
 function schedulePush(ms) { clearTimeout(pushTimer); pushTimer = setTimeout(() => { pushTimer = null; push(); }, ms); }
@@ -1023,7 +1098,7 @@ async function push(opts) {
       if (remote.sha === gh.sha && !dirty) { status = 'ok'; break; }
       const merged = mergeData(state, remote.data);
       const localChanged = JSON.stringify(normalizeState(clone(merged))) !== JSON.stringify(normalizeState(clone(state)));
-      if (localChanged) { state = normalizeState(clone(merged)); saveLocal(); scheduleRender(); }
+      if (localChanged) { state = normalizeState(clone(merged)); saveLocal(); scheduleRender(); acctMark('data'); }
       const remoteChanged = JSON.stringify(normalizeState(clone(merged))) !== JSON.stringify(normalizeState(clone(remote.data)));
       if (!remoteChanged) { gh.sha = remote.sha; gh.lastPush = remote.savedAt || gh.lastPush; saveGh(); status = 'ok'; break; }
       const r = await put(merged, remote.sha);
@@ -1041,13 +1116,17 @@ async function push(opts) {
   if (ui.tab === 'backup' && !ui.sessionId) scheduleRender();
 }
 
+// облаков два: аккаунт (вход через GitHub) и репозиторий по ключу; значок показывает общее состояние
 function syncInfo() {
-  if (!cloudOn()) return ['Без облака', 'warn', 'Данные только на этом устройстве. Подключи облако в разделе «Копии».'];
-  if (gh.authError) return ['Ошибка ключа', 'bad', 'Облако не принимает ключ. Обнови его в разделе «Копии».'];
-  if (pushing) return ['Сохраняю…', 'wait', 'Отправляю копию в облако'];
-  if (dirty && offline) return ['Ждёт сети', 'warn', 'Сохранено на устройстве. В облако уйдёт, когда появится интернет.'];
-  if (dirty) return ['Сохраняю…', 'wait', 'Сохранено на устройстве, сейчас отправлю в облако'];
-  return ['Сохранено', 'ok', 'Сохранено на устройстве и в облаке'];
+  const ghOn = cloudOn(), acOn = acctOn();
+  if (!ghOn && !acOn) return ['Без облака', 'warn', 'Данные только на этом устройстве. Войди в аккаунт или подключи облако в разделе «Копии».'];
+  if (ghOn && gh.authError) return ['Ошибка ключа', 'bad', 'Облако не принимает ключ. Обнови его в разделе «Копии».'];
+  if (acOn && acct.authError) return ['Нужен вход', 'bad', 'Вход в аккаунт устарел. Войди заново в разделе «Копии».'];
+  const ghPend = ghOn && dirty, acPend = acOn && acctPending();
+  if (pushing || aSyncing) return ['Сохраняю…', 'wait', 'Отправляю копию в облако'];
+  if ((ghPend && offline) || (acPend && aOffline)) return ['Ждёт сети', 'warn', 'Сохранено на устройстве. В облако уйдёт, когда появится интернет.'];
+  if (ghPend || acPend) return ['Сохраняю…', 'wait', 'Сохранено на устройстве, сейчас отправлю в облако'];
+  return ['Сохранено', 'ok', acOn ? 'Сохранено на устройстве и в аккаунте' : 'Сохранено на устройстве и в облаке'];
 }
 const syncPill = action => { const [t, c, long] = syncInfo(); return '<button class="sync ' + c + '" id="sync" data-action="' + (action || 'open-backup') + '" title="' + esc(long) + '" aria-label="' + esc(long) + '"><span>' + esc(t) + '</span></button>'; };
 function updateSyncPill() {
@@ -1122,7 +1201,8 @@ const trainingsWord = n => n + ' ' + plural(n, ['тренировка', 'тре�
 
 function viewBackup() {
   let html = '<div class="bk-top"><button class="btn back" id="bk-back" data-action="tab" data-tab="log" aria-label="Назад">←</button><h2 class="h2">Копии данных</h2></div>';
-  html += '<section class="card stack"><h2 class="h2">Облако <span class="count">GitHub</span></h2>';
+  html += acctSection();
+  html += '<section class="card stack"><h2 class="h2">Облако <span class="count">' + (API_URL ? 'репозиторий GitHub по ключу' : 'GitHub') + '</span></h2>';
   if (cloudOn()) {
     html += '<p class="bk-line"><span class="bk-dot ' + (gh.authError ? 'bad' : 'ok') + '"></span><b>' + esc(gh.repo) + '</b></p>';
     html += '<p class="bk-muted">' + (gh.lastPush ? 'Последняя отправка: ' + esc(fmtStamp(gh.lastPush)) : 'Отправки ещё не было') + (dirty ? ' — есть неотправленные изменения' : '') + '</p>';
@@ -1155,6 +1235,7 @@ function startup() {
   if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
   updateSyncPill();
   if (cloudOn() && !gh.authError) push({ pull: true });
+  acctStartup();
 }
 
 /* ---------- отрисовка ---------- */
@@ -1168,9 +1249,10 @@ function render() {
   const a = document.activeElement, focusId = a && a.id;
   if (ui.sessionId && !state.sessions[ui.sessionId]) { ui.sessionId = null; ui.picker = false; }
   let html = ui.schemeEdit ? viewSchemeEditor() : ui.sessionId ? viewSession() : ui.tab === 'backup' ? viewBackup() :
-    viewHeader() + (ui.tab === 'log' ? viewLog() : ui.tab === 'progress' ? viewProgress() : ui.tab === 'guide' ? viewGuide() : viewPrograms());
+    viewHeader() + (ui.tab === 'log' ? viewLog() : ui.tab === 'progress' ? viewProgress() : ui.tab === 'guide' ? viewGuide() : ui.tab === 'friends' ? viewFriends() : viewPrograms());
   html += groupsDatalist() + viewModal();
   document.getElementById('app').innerHTML = html;
+  if (ui.tab === 'friends' && !ui.sessionId) friendsMaybeRefresh();
   if (mode !== 'loading') hideSplash();
   if (focusId) { const el = document.getElementById(focusId); if (el) el.focus({ preventScroll: true }); }
   if (ui.modal) { const f = document.getElementById('m-ok') || document.getElementById('copy-area'); if (f && !focusId) f.focus(); }
@@ -1528,6 +1610,12 @@ function viewModal() {
   } else if (m.type === 'cloud-off') {
     body = '<h2 id="m-title">Отключить облако?</h2><p>Данные останутся на телефоне и в репозитории, но новые изменения перестанут туда уходить.</p>' +
       '<div class="modal-actions"><button class="btn" id="m-cancel" data-action="modal-close">Отмена</button><button class="btn btn-danger-solid" id="m-ok" data-action="cloud-off">Отключить</button></div>';
+  } else if (m.type === 'acct-logout') {
+    body = '<h2 id="m-title">Выйти из аккаунта?</h2><p>Тренировки останутся на этом устройстве и в аккаунте, но новые изменения перестанут туда уходить, а таблица лидеров спрячется до следующего входа.</p>' +
+      '<div class="modal-actions"><button class="btn" id="m-cancel" data-action="modal-close">Отмена</button><button class="btn btn-danger-solid" id="m-ok" data-action="acct-logout-ok">Выйти</button></div>';
+  } else if (m.type === 'fr-remove') {
+    body = '<h2 id="m-title">Удалить ' + esc(m.name) + ' из друзей?</h2><p>Вы пропадёте из таблиц лидеров друг у друга. Добавить снова можно в любой момент.</p>' +
+      '<div class="modal-actions"><button class="btn" id="m-cancel" data-action="modal-close">Отмена</button><button class="btn btn-danger-solid" id="m-ok" data-action="fr-remove-ok">Удалить</button></div>';
   }
   return '<div class="modal-back" data-action="modal-backdrop"><div class="modal card" role="dialog" aria-modal="true" aria-labelledby="m-title">' + body + '</div></div>';
 }
@@ -1703,7 +1791,7 @@ const actions = {
     state.programs.forEach(p => { p.exIds = p.exIds.filter(i => i !== id); });
     persistConfig(); render();
   },
-  'sync-info': () => { toast(syncInfo()[2]); if (cloudOn() && dirty && !gh.authError) { retryDelay = 5000; push(); } },
+  'sync-info': () => { toast(syncInfo()[2]); if (cloudOn() && dirty && !gh.authError) { retryDelay = 5000; push(); } if (acctOn() && acctPending()) { aRetry = 5000; acctSync(); } },
   'open-backup': () => { ui.tab = 'backup'; ui.selectedDay = null; render(); window.scrollTo(0, 0); },
   'cloud-connect': () => { connectCloud(); },
   'cloud-push': () => { gh.authError = false; retryDelay = 5000; push({ pull: true }); render(); },
@@ -2162,6 +2250,7 @@ function gTouch(id) {
   if (id && guide.items[id]) guide.items[id].updatedAt = Date.now();
   saveGuide(); gEditSeq++; gs.dirty = true; saveGs();
   scheduleGuideSync(2500);
+  acctMark('guide');
 }
 function gElements() {
   const list = GUIDE_EL.filter(e => guide.items[e.id] || !guide.deleted[e.id]).map(e => gItem(e.id));
@@ -2199,7 +2288,7 @@ async function guideSync() {
       const remote = await guideGet();
       const seq = gEditSeq;
       const merged = remote.missing ? guide : mergeGuide(guide, remote.guide);
-      if (JSON.stringify(merged) !== JSON.stringify(guide)) { guide = merged; saveGuide(); scheduleRender(); }
+      if (JSON.stringify(merged) !== JSON.stringify(guide)) { guide = merged; saveGuide(); scheduleRender(); acctMark('guide'); }
       const nothing = !Object.keys(merged.items).length && !Object.keys(merged.deleted).length;
       if ((remote.missing && nothing) || (!remote.missing && JSON.stringify(merged) === JSON.stringify(remote.guide))) {
         gs.sha = remote.sha || null; if (gEditSeq === seq) gs.dirty = false; saveGs(); break;
@@ -2765,15 +2854,358 @@ window.addEventListener('online', () => scheduleGuideSync(500));
 setInterval(() => { if (document.visibilityState !== 'hidden' && !gTimer) guideSync(); }, 60000);
 scheduleGuideSync(1500);
 
+/* ---------- аккаунт (вход через GitHub), друзья и таблица лидеров ---------- */
+// Тренировки и справочник аккаунта синхронизируются так же, как с репозиторием: данные объединяются,
+// по каждой тренировке и статье побеждает более свежая правка. На устройстве хранится только ключ сессии.
+const LS_ACCT = 'billiard-acct-v1', LS_AUTH = 'billiard-auth-pending-v1', LS_FRIENDS = 'billiard-friends-v1';
+const ACCT_DELAY = 8000, AUTH_WAIT = 10 * 60 * 1000;
+let acct = loadObj(LS_ACCT);          // { token, user, ver: {data, guide}, dirty: {data, guide}, lastSync, authError }
+let friends = loadObj(LS_FRIENDS);    // { at, me, friends, incoming, outgoing } — последний ответ сервера
+let aSyncing = false, aTimer = null, aRetry = 5000, aOffline = false, authTimer = null;
+const acctOn = () => !!(API_URL && acct.token);
+const acctFix = () => { if (!acct.ver || typeof acct.ver !== 'object') acct.ver = {}; if (!acct.dirty || typeof acct.dirty !== 'object') acct.dirty = {}; };
+const saveAcct = () => { acctFix(); saveObj(LS_ACCT, acct); };
+const acctPending = () => !!(acct.dirty && (acct.dirty.data || acct.dirty.guide));
+const randHex = n => Array.from(crypto.getRandomValues(new Uint8Array(n)), b => b.toString(16).padStart(2, '0')).join('');
+const authPending = () => { const p = loadObj(LS_AUTH); return !!p.state && Date.now() - (p.at || 0) < AUTH_WAIT; };
+acctFix();
+
+// ссылка из «Поделиться ником» (?add=ник) и отказ на странице GitHub (?error=…)
+(() => {
+  if (!API_URL) return;
+  const add = AUTH_Q.get('add'), err = AUTH_Q.get('error') && AUTH_Q.get('state');
+  if (add) { ui.tab = 'friends'; ui.fAdd = add.replace(/[^\w-]/g, '').slice(0, 39); }
+  if (err) { try { localStorage.removeItem(LS_AUTH); } catch (e) { /* ignore */ } setTimeout(() => toast('Вход через GitHub отменён'), 600); }
+  if (add || err) { try { history.replaceState(null, '', location.pathname); } catch (e) { /* ignore */ } }
+})();
+
+async function api(a, payload, opts) {
+  opts = opts || {};
+  const body = JSON.stringify(Object.assign({ a }, acct.token && !opts.anon ? { t: acct.token } : {}, payload || {}));
+  let r;
+  try {
+    r = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=UTF-8' }, body, cache: 'no-store', keepalive: !!opts.keepalive && body.length < 60000 });
+  } catch (e) { throw { status: 'net' }; }
+  let j = null;
+  try { j = await r.json(); } catch (e) { j = null; }
+  if (!r.ok || !j) throw { status: r.status || 'net', error: j && j.error, message: j && j.message };
+  return j;
+}
+
+function acctMark(kind) {
+  if (!acctOn()) return;
+  acct.dirty[kind] = true; saveAcct();
+  if (!acct.authError) scheduleAcct(ACCT_DELAY);
+}
+function scheduleAcct(ms) { clearTimeout(aTimer); aTimer = setTimeout(() => { aTimer = null; acctSync(); }, ms); }
+
+// итоги для таблицы лидеров — те же, что на вкладке «Прогресс»
+function myStats(d) {
+  const ss = Object.values(((d || state) && (d || state).sessions) || {});
+  let shots = 0, made = 0;
+  ss.forEach(s => { const t = sessionTotals(s); shots += t.shots; made += t.made; });
+  return { trainings: ss.length, shots, made };
+}
+
+async function acctSyncKind(kind, pull) {
+  const isData = kind === 'data';
+  const cur = () => isData ? clone(state) : clone(guide);
+  const merge = (a, b) => isData ? normalizeState(mergeData(a, b)) : mergeGuide(a, b);
+  const norm = x => JSON.stringify(isData ? normalizeState(clone(x)) : normGuide(x));
+  const seqNow = () => isData ? editSeq : gEditSeq;
+  const applyLocal = merged => {
+    if (isData) {
+      state = normalizeState(clone(merged)); saveLocal();
+      if (cloudOn() && !gh.authError) { setDirty(true); schedulePush(PUSH_DELAY); }
+    } else {
+      guide = normGuide(merged); saveGuide();
+      if (cloudOn()) { gs.dirty = true; saveGs(); scheduleGuideSync(2500); }
+    }
+    scheduleRender();
+  };
+  let fast = !pull && !!acct.dirty[kind] && acct.ver[kind] != null;   // версия известна — сразу отправляем
+  for (let attempt = 0; attempt < 4; attempt++) {
+    const seq = seqNow();
+    let body = cur(), base = acct.ver[kind] || 0;
+    if (!fast) {
+      const r = await api('get', Object.assign({ kind }, acct.ver[kind] != null ? { have: acct.ver[kind] } : {}));
+      base = r.ver || 0;
+      if (r.same) { if (!acct.dirty[kind]) return; }
+      else if (r.body) {
+        const merged = merge(body, r.body);
+        if (norm(merged) !== norm(body)) { applyLocal(merged); body = cur(); }
+        if (norm(body) === norm(r.body)) { acct.ver[kind] = base; if (seqNow() === seq) acct.dirty[kind] = false; return; }
+      } else if (!isData && !Object.keys(body.items).length && !Object.keys(body.deleted).length) {
+        acct.ver[kind] = 0; if (seqNow() === seq) acct.dirty[kind] = false; return;
+      }
+    }
+    fast = false;
+    const res = await api('put', Object.assign({ kind, base, body }, isData ? { stats: myStats(body) } : {}));
+    if (res.conflict) continue;
+    acct.ver[kind] = res.ver;
+    if (seqNow() === seq) acct.dirty[kind] = false;
+    return;
+  }
+  throw { status: 'conflict' };
+}
+
+async function acctSync(opts) {
+  opts = opts || {};
+  if (!acctOn() || aSyncing || acct.authError) return;
+  if (!opts.pull && !acctPending()) return;
+  if (navigator.onLine === false) { aOffline = true; updateSyncPill(); return; }
+  clearTimeout(aTimer); aTimer = null;
+  aSyncing = true; updateSyncPill();
+  let ok = false;
+  try {
+    await acctSyncKind('data', opts.pull);
+    await acctSyncKind('guide', opts.pull);
+    acct.lastSync = new Date().toISOString(); aOffline = false; aRetry = 5000; ok = true;
+  } catch (e) {
+    if (e && e.status === 401) { acct.authError = true; toast('Вход в аккаунт устарел — войди через GitHub ещё раз'); }
+    else { aOffline = true; scheduleAcct(aRetry); aRetry = Math.min(aRetry * 2, 60000); }
+  }
+  aSyncing = false; saveAcct();
+  if (ok && acctPending() && !aTimer) scheduleAcct(1500);   // пока шла отправка, появились новые правки
+  updateSyncPill();
+  if (!ui.sessionId && (ui.tab === 'backup' || ui.tab === 'friends')) scheduleRender();
+}
+const acctPullNow = () => { if (acctOn() && !acct.authError && !aSyncing && document.visibilityState !== 'hidden') acctSync({ pull: true }); };
+
+/* вход */
+function authPollStart(ms) { clearTimeout(authTimer); authTimer = setTimeout(authPoll, ms == null ? 2500 : ms); }
+async function authPoll() {
+  authTimer = null;
+  const p = loadObj(LS_AUTH);
+  if (!p.state || Date.now() - (p.at || 0) > AUTH_WAIT) {
+    try { localStorage.removeItem(LS_AUTH); } catch (e) { /* ignore */ }
+    if (!ui.sessionId && (ui.tab === 'friends' || ui.tab === 'backup')) scheduleRender();
+    return;
+  }
+  if (document.visibilityState === 'hidden') { authPollStart(3000); return; }
+  try {
+    const j = await api('auth-poll', { state: p.state }, { anon: true });
+    if (j.token) { acctAdopt(j); return; }
+    if (j.expired) { try { localStorage.removeItem(LS_AUTH); } catch (e) { /* ignore */ } toast('Вход не завершён — нажми «Войти через GitHub» ещё раз'); scheduleRender(); return; }
+  } catch (e) { /* нет сети — попробуем ещё */ }
+  authPollStart();
+}
+function acctAdopt(j) {
+  try { localStorage.removeItem(LS_AUTH); } catch (e) { /* ignore */ }
+  clearTimeout(authTimer); authTimer = null; ui.authNext = null;
+  const sameUser = !!(acct.user && j.user && acct.user.id === j.user.id);
+  acct = { token: j.token, user: j.user || {}, ver: sameUser ? acct.ver : {}, dirty: { data: true, guide: true }, lastSync: sameUser ? acct.lastSync : '' };
+  saveAcct();
+  if (!sameUser) { friends = {}; saveObj(LS_FRIENDS, friends); }
+  toast('Вход выполнен: ' + (acct.user.name || acct.user.login || 'GitHub'));
+  render();
+  acctSync({ pull: true }).then(() => loadFriends(true));
+}
+function acctStartup() {
+  if (!API_URL) return;
+  if (acctOn() && !acct.authError) acctSync({ pull: true }).then(() => loadFriends(true));
+  if (authPending()) authPollStart(500);
+}
+const LOGIN_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h3.5A2.5 2.5 0 0 1 20 6.5v11a2.5 2.5 0 0 1-2.5 2.5H14"/><path d="M4 12h11"/><path d="m11 8 4 4-4 4"/></svg>';
+function loginLink(label) {
+  if (!ui.authNext) ui.authNext = randHex(16);
+  return '<a class="btn btn-primary btn-login" id="acct-login" href="' + esc(API_URL + '?a=login&state=' + ui.authNext) + '" target="_blank" data-action="acct-login" data-state="' + ui.authNext + '">' + LOGIN_ICON + '<span>' + esc(label) + '</span></a>';
+}
+const authWaitHTML = () => authPending() ? '<p class="fr-wait">Жду подтверждения от GitHub… Если окно входа закрылось раньше времени, нажми кнопку ещё раз.</p>' : '';
+
+/* друзья */
+function setFriends(j) {
+  friends = { at: Date.now(), me: j.me || null, friends: j.friends || [], incoming: j.incoming || [], outgoing: j.outgoing || [] };
+  saveObj(LS_FRIENDS, friends);
+  if (j.me) { acct.user = Object.assign({}, acct.user, { id: j.me.id, login: j.me.login, name: j.me.name, avatar: j.me.avatar }); saveAcct(); }
+  try { syncTabbar(); } catch (e) { /* панель ещё не создана */ }
+}
+function acctErr(e, silent) {
+  if (e && e.status === 401) { acct.authError = true; saveAcct(); toast('Вход в аккаунт устарел — войди через GitHub ещё раз'); return; }
+  if (!silent) toast(e && e.message ? e.message : navigator.onLine === false ? 'Нет интернета' : 'Сервер не ответил, попробуй ещё раз');
+}
+async function loadFriends(silent) {
+  if (!acctOn() || acct.authError || ui.fBusy) return;
+  ui.fTried = Date.now(); ui.fBusy = true;
+  if (!silent && !ui.sessionId && ui.tab === 'friends') render();
+  try { setFriends(await api('friends')); } catch (e) { acctErr(e, silent); }
+  ui.fBusy = false;
+  if (!ui.sessionId && ui.tab === 'friends') scheduleRender();
+}
+function friendsMaybeRefresh() {
+  if (!acctOn() || acct.authError || ui.fBusy || navigator.onLine === false) return;
+  if (Date.now() - (friends.at || 0) > 60000 && Date.now() - (ui.fTried || 0) > 30000) setTimeout(() => loadFriends(true), 0);
+}
+async function friendAct(a, payload, okMsg) {
+  if (navigator.onLine === false) { toast('Для этого нужен интернет'); return null; }
+  ui.fBusy = true; render();
+  let out = null;
+  try { const j = await api(a, payload); setFriends(j); out = j; if (okMsg) toast(typeof okMsg === 'function' ? okMsg(j) : okMsg); }
+  catch (e) { acctErr(e, false); }
+  ui.fBusy = false; render();
+  return out;
+}
+
+/* таблица лидеров: место — по точности за все тренировки (забито ÷ удары), с точностью до десятой процента */
+const pctOf = s => s && s.shots > 0 ? s.made / s.shots : null;
+const pctTxt = p => p == null ? '—' : (Math.round(p * 1000) / 10).toFixed(1).replace('.', ',') + '%';
+const nameOfUser = u => (u && (u.name || u.login)) || 'Без имени';
+function leaderboard() {
+  const me = Object.assign({}, acct.user || {}, { stats: myStats(), isMe: true });
+  const rows = [me].concat((friends.friends || []).map(u => Object.assign({}, u)));
+  rows.forEach(r => { r.p = pctOf(r.stats); r.key = r.p == null ? -1 : Math.round(r.p * 1000); });
+  rows.sort((a, b) => b.key - a.key || ((b.stats || {}).trainings || 0) - ((a.stats || {}).trainings || 0) || nameOfUser(a).localeCompare(nameOfUser(b), 'ru'));
+  let place = 0;
+  rows.forEach((r, i) => { if (r.key < 0) { r.place = null; return; } if (i === 0 || r.key !== rows[i - 1].key) place = i + 1; r.place = place; });
+  return rows;
+}
+function avatarHTML(u, size) {
+  const letter = esc((nameOfUser(u).trim().charAt(0) || '?').toUpperCase());
+  const src = u && u.avatar ? u.avatar + (u.avatar.includes('?') ? '&' : '?') + 's=' + size * 2 : '';
+  return '<span class="ava" style="width:' + size + 'px;height:' + size + 'px;font-size:' + Math.round(size * 0.42) + 'px" aria-hidden="true"><span>' + letter + '</span>' +
+    (src ? '<img src="' + esc(src) + '" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">' : '') + '</span>';
+}
+const userName = (u, me) => '<span class="lb-name"><b>' + esc(nameOfUser(u)) + (me ? '<em class="lb-me">ты</em>' : '') + '</b><small>@' + esc(u.login || '') + '</small></span>';
+function lbRow(r) {
+  const st = r.stats || {};
+  return '<li class="lb-row' + (r.isMe ? ' is-me' : '') + '"><span class="lb-place' + (r.place && r.place <= 3 ? ' p' + r.place : '') + '">' + (r.place || '—') + '</span>' +
+    avatarHTML(r, 38) + userName(r, r.isMe) +
+    '<span class="lb-val"><b>' + pctTxt(r.p) + '</b><small>' + trainingsWord(st.trainings || 0) + '</small></span></li>';
+}
+const frRow = (u, acts, note) => '<li class="fr-row">' + avatarHTML(u, 36) + '<span class="lb-name"><b>' + esc(nameOfUser(u)) + '</b><small>@' + esc(u.login || '') + (note ? ' — ' + esc(note) : '') + '</small></span><span class="fr-acts">' + acts + '</span></li>';
+const fmtAgo = t => { const s = (Date.now() - t) / 1000; if (s < 60) return 'только что'; if (s < 3600) return Math.floor(s / 60) + ' мин назад'; return fmtStamp(new Date(t).toISOString()); };
+
+function viewFriends() {
+  if (!acctOn()) {
+    return '<section class="card stack fr-hero"><h2 class="h2">Друзья и соревнование</h2>' +
+      '<p class="bk-muted">Войди через GitHub — и сможешь добавлять друзей и соревноваться с ними в таблице лидеров по точности ударов. Заодно тренировки будут храниться в твоём аккаунте и подтягиваться на любом устройстве.</p>' +
+      loginLink('Войти через GitHub') + authWaitHTML() +
+      '<p class="bk-muted fr-small">GitHub спросит доступ только к имени и аватарке. Всё, что уже есть на этом устройстве, перенесётся в аккаунт.</p></section>';
+  }
+  const f = friends, busy = ui.fBusy ? ' disabled' : '';
+  let html = '';
+  if (acct.authError) html += '<section class="card stack"><div class="banner">Вход в аккаунт устарел. Войди заново — данные никуда не пропадут.</div>' + loginLink('Войти заново') + authWaitHTML() + '</section>';
+  if ((f.incoming || []).length) {
+    html += '<section class="card stack"><h2 class="h2">Заявки в друзья <span class="count">' + f.incoming.length + '</span></h2><ul class="fr-list">' +
+      f.incoming.map(u => frRow(u, '<button class="btn btn-primary btn-sm" id="fra-' + esc(u.id) + '" data-action="fr-accept" data-uid="' + esc(u.id) + '"' + busy + '>Принять</button>' +
+        '<button class="btn btn-sm" id="frd-' + esc(u.id) + '" data-action="fr-decline" data-uid="' + esc(u.id) + '"' + busy + '>Отклонить</button>')).join('') + '</ul></section>';
+  }
+  const rows = leaderboard();
+  html += '<section class="stack"><div class="lb-head"><h2 class="h2">Таблица лидеров</h2><button class="link" id="fr-refresh" data-action="fr-refresh"' + busy + '>' + (ui.fBusy ? 'Обновляю…' : 'Обновить') + '</button></div>' +
+    '<ol class="lb">' + rows.map(lbRow).join('') + '</ol>' +
+    '<p class="bk-muted lb-note">' + (rows.length < 2 ? 'Добавь друзей — и здесь начнётся соревнование. ' : '') + 'Место определяет точность ударов за все тренировки: сколько забито из всех ударов. Упражнения без счётчика ударов не учитываются.' + (f.at ? ' Обновлено ' + esc(fmtAgo(f.at)) + '.' : '') + '</p></section>';
+  html += '<section class="card stack"><h2 class="h2">Добавить друга</h2>' +
+    '<form class="fr-add" data-form="fr-add" autocomplete="off"><input id="fr-login" name="login" class="inline-in" placeholder="Ник друга на GitHub" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send" value="' + esc(ui.fAdd || '') + '">' +
+    '<button class="btn btn-primary" id="fr-add-btn" type="submit"' + busy + '>Добавить</button></form>' +
+    '<p class="bk-muted">Друг получит заявку и подтвердит её у себя. Если он ещё не входил в приложение, заявка будет ждать его первого входа.</p>' +
+    '<button class="link fr-share" id="fr-share" data-action="fr-share">Поделиться своим ником — @' + esc((acct.user || {}).login || '') + '</button>';
+  if ((f.outgoing || []).length) {
+    html += '<h3 class="sub-h">Ждут ответа</h3><ul class="fr-list">' + f.outgoing.map(u => frRow(u, '<button class="btn btn-sm" id="frc-' + esc(u.id) + '" data-action="fr-decline" data-uid="' + esc(u.id) + '"' + busy + '>Отменить</button>', u.joined ? '' : 'ещё не входил в приложение')).join('') + '</ul>';
+  }
+  html += '</section>';
+  if ((f.friends || []).length) {
+    html += '<section class="card stack"><h2 class="h2">Друзья <span class="count">' + f.friends.length + '</span></h2><ul class="fr-list">' +
+      f.friends.map(u => frRow(u, '<button class="icon-btn" id="frr-' + esc(u.id) + '" data-action="fr-remove" data-uid="' + esc(u.id) + '" aria-label="Удалить ' + esc(nameOfUser(u)) + ' из друзей"' + busy + '>×</button>')).join('') + '</ul></section>';
+  }
+  return html;
+}
+
+function acctSection() {
+  if (!API_URL) return '';
+  let h = '<section class="card stack"><h2 class="h2">Аккаунт <span class="count">вход через GitHub</span></h2>';
+  if (!acctOn()) {
+    return h + '<p class="bk-muted">Войди, чтобы тренировки и справочник хранились в аккаунте и сами подтягивались на любом устройстве. Во вкладке «Друзья» появится таблица лидеров.</p>' + loginLink('Войти через GitHub') + authWaitHTML() + '</section>';
+  }
+  h += '<div class="fr-me">' + avatarHTML(acct.user || {}, 42) + userName(acct.user || {}, false) + '</div>';
+  if (acct.authError) h += '<div class="banner">Вход устарел. Войди заново — данные не пропадут.</div>' + loginLink('Войти заново') + authWaitHTML();
+  else {
+    h += '<p class="bk-muted">' + (acct.lastSync ? 'Последняя синхронизация: ' + esc(fmtStamp(acct.lastSync)) : 'Синхронизации ещё не было') + (acctPending() ? ' — есть неотправленные изменения' : '') + '</p>' +
+      '<div class="row-btns"><button class="btn btn-primary" id="acct-sync" data-action="acct-sync"' + (aSyncing ? ' disabled' : '') + '>' + (aSyncing ? 'Синхронизирую…' : 'Синхронизировать') + '</button></div>';
+  }
+  return h + '<button class="link link-muted" id="acct-logout" data-action="acct-logout">Выйти из аккаунта</button></section>';
+}
+
+Object.assign(actions, {
+  'acct-login': (el, ev) => {
+    if (navigator.onLine === false) { ev.preventDefault(); toast('Для входа нужен интернет'); return; }
+    saveObj(LS_AUTH, { state: el.dataset.state, at: Date.now() });
+    authPollStart(4000);
+    setTimeout(() => scheduleRender(), 300);
+  },
+  'acct-sync': () => { aRetry = 5000; acctSync({ pull: true }).then(() => loadFriends(true)); render(); },
+  'acct-logout': () => { ui.modal = { type: 'acct-logout' }; render(); },
+  'acct-logout-ok': () => {
+    ui.modal = null; clearTimeout(aTimer); aTimer = null;
+    acct = {}; acctFix(); saveAcct(); friends = {}; saveObj(LS_FRIENDS, friends);
+    if (ui.tab === 'friends') ui.tab = 'log';
+    render(); toast('Ты вышел из аккаунта. Данные остались на этом устройстве');
+  },
+  'fr-refresh': () => loadFriends(false),
+  'fr-accept': el => friendAct('friend-accept', { uid: el.dataset.uid }, 'Теперь вы друзья'),
+  'fr-decline': el => friendAct('friend-remove', { uid: el.dataset.uid }),
+  'fr-remove': el => { const u = (friends.friends || []).find(x => x.id === el.dataset.uid); ui.modal = { type: 'fr-remove', uid: el.dataset.uid, name: nameOfUser(u) }; render(); },
+  'fr-remove-ok': () => { const { uid, name } = ui.modal; ui.modal = null; friendAct('friend-remove', { uid }, name + ' удалён из друзей'); },
+  'fr-share': async () => {
+    const login = (acct.user || {}).login || '';
+    const text = 'Добавь меня в друзья в «Бильярде» — мой ник на GitHub: ' + login;
+    const url = APP_HOME + '?add=' + encodeURIComponent(login);
+    if (navigator.share) {
+      try { await navigator.share({ text, url }); return; } catch (e) { if (e && e.name === 'AbortError') return; }
+    }
+    try { await navigator.clipboard.writeText(text + '\n' + url); toast('Скопировано — отправь другу'); } catch (e) { toast('Твой ник: ' + login); }
+  }
+});
+document.addEventListener('submit', async ev => {
+  const f = ev.target;
+  if (f.dataset.form !== 'fr-add') return;
+  ev.preventDefault();
+  const v = String(new FormData(f).get('login') || '').trim();
+  if (!v) { toast('Впиши ник друга на GitHub'); return; }
+  ui.fAdd = v;
+  if (document.activeElement) document.activeElement.blur();
+  const j = await friendAct('friend-add', { login: v }, r => {
+    const n = nameOfUser(r.who);
+    if (r.result === 'friends') return 'Теперь вы друзья с ' + n;
+    if (r.result === 'already') return n + ' уже в друзьях';
+    return 'Заявка отправлена: ' + n + (r.who && !r.who.joined ? '. Он увидит её, когда впервые войдёт в приложение' : '');
+  });
+  if (j) { ui.fAdd = ''; render(); }
+});
+document.addEventListener('input', ev => { if (ev.target.id === 'fr-login') ui.fAdd = ev.target.value; });
+window.addEventListener('storage', ev => {
+  // вход завершился в соседней вкладке того же браузера
+  if (ev.key !== LS_ACCT || !API_URL) return;
+  const v = loadObj(LS_ACCT);
+  if (v.token && v.token !== acct.token) acctAdopt({ token: v.token, user: v.user });
+});
+document.addEventListener('visibilitychange', () => {
+  if (!API_URL) return;
+  if (document.visibilityState === 'hidden') { if (acctOn() && acctPending() && !acct.authError) acctSync(); return; }
+  if (authPending() && !acctOn()) authPollStart(300);
+  acctPullNow();
+  if (ui.tab === 'friends') friendsMaybeRefresh();
+});
+window.addEventListener('online', () => { aRetry = 5000; aOffline = false; acctPullNow(); });
+window.addEventListener('offline', () => { aOffline = true; updateSyncPill(); });
+setInterval(() => {
+  if (!acctOn() || document.visibilityState === 'hidden') return;
+  if (acctPending() && !aSyncing && !aTimer) acctSync();
+  else if (!acctPending()) acctPullNow();
+  if (Date.now() - (friends.at || 0) > 5 * 60000) loadFriends(true);
+}, 60000);
+
 /* ---------- нижняя панель вкладок (iOS 26) ---------- */
+const TB_FRIENDS = ['friends', 'Друзья', '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="7.4" r="3.7"/><path d="M1.8 19c0-3.7 3.2-6.3 7.2-6.3s7.2 2.6 7.2 6.3c0 .8-.6 1.4-1.4 1.4H3.2c-.8 0-1.4-.6-1.4-1.4Z"/><circle cx="17.2" cy="8.4" r="3"/><path d="M17.6 13.2c2.7.2 4.6 2.2 4.6 4.9 0 .7-.5 1.2-1.2 1.2h-3.5c.2-.4.2-.8.2-1.2 0-1.9-.8-3.6-2.1-4.8.6-.1 1.3-.1 2-.1Z"/></svg>'];
 const TB_TABS = [
   ['log', 'Тренировки', '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M7 2.5a1 1 0 0 1 1 1V5h8V3.5a1 1 0 1 1 2 0V5h.5A3.5 3.5 0 0 1 22 8.5v10a3.5 3.5 0 0 1-3.5 3.5h-13A3.5 3.5 0 0 1 2 18.5v-10A3.5 3.5 0 0 1 5.5 5H6V3.5a1 1 0 0 1 1-1ZM4 10v8.5c0 .83.67 1.5 1.5 1.5h13c.83 0 1.5-.67 1.5-1.5V10H4Z"/><rect x="6" y="12" width="3.2" height="3" rx=".9"/><rect x="10.4" y="12" width="3.2" height="3" rx=".9"/><rect x="14.8" y="12" width="3.2" height="3" rx=".9"/><rect x="6" y="16.2" width="3.2" height="2.6" rx=".9"/><rect x="10.4" y="16.2" width="3.2" height="2.6" rx=".9"/></svg>'],
   ['progress', 'Прогресс', '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="3" y="13" width="4.6" height="8.5" rx="1.6"/><rect x="9.7" y="8.2" width="4.6" height="13.3" rx="1.6"/><rect x="16.4" y="3" width="4.6" height="18.5" rx="1.6"/></svg>'],
   ['programs', 'Комплексы', '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="4.6" cy="6" r="2"/><circle cx="4.6" cy="12" r="2"/><circle cx="4.6" cy="18" r="2"/><rect x="8.6" y="4.4" width="12.8" height="3.2" rx="1.6"/><rect x="8.6" y="10.4" width="12.8" height="3.2" rx="1.6"/><rect x="8.6" y="16.4" width="12.8" height="3.2" rx="1.6"/></svg>'],
   ['guide', 'Справочник', '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M11 5.4C9.1 4.2 6.8 3.6 4.4 3.6c-.86 0-1.66.08-2.4.24v14.9c.76-.17 1.56-.26 2.4-.26 2.45 0 4.7.66 6.6 1.86V5.4Z"/><path d="M13 5.4c1.9-1.2 4.2-1.8 6.6-1.8.86 0 1.66.08 2.4.24v14.9a11 11 0 0 0-2.4-.26c-2.45 0-4.7.66-6.6 1.86V5.4Z"/></svg>']
-];
+].concat(API_URL ? [TB_FRIENDS] : []);
 const tb = document.createElement('nav');
 tb.className = 'tb'; tb.id = 'tabbar'; tb.setAttribute('role', 'tablist'); tb.setAttribute('aria-label', 'Разделы');
+tb.style.setProperty('--tb-n', TB_TABS.length);
+if (TB_TABS.length > 4) tb.classList.add('tb-many');
 tb.innerHTML = '<span class="tb-ind" aria-hidden="true"></span>' + TB_TABS.map(([k, l, ic]) =>
   '<button class="tb-item" role="tab" type="button" data-tb="' + k + '" aria-selected="false">' + ic + '<span>' + l + '</span></button>').join('');
 const tbAcc = document.createElement('div');
@@ -2893,6 +3325,9 @@ function tbKick() {
 }
 function syncTabbar() {
   tb.classList.toggle('is-hidden', !!ui.sessionId || ui.tab === 'backup' || !!ui.schemeEdit);
+  // красная точка на «Друзьях», пока есть непринятые заявки
+  const fi = TB_TABS.findIndex(t => t[0] === 'friends');
+  if (fi >= 0) { const on = acctOn() && !!(friends.incoming && friends.incoming.length); tbItems[fi].classList.toggle('has-badge', on); tbAccItems[fi].classList.toggle('has-badge', on); }
   if (P.down) return;
   const c = tbCenter(tbIndex());
   if (P.x == null || !tb.offsetWidth) { P.x = P.tx = c; tbDraw(); return; }
