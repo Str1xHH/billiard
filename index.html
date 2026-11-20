@@ -494,9 +494,15 @@ td.num, th.num { text-align: right; }
 .ava img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .lb-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
 .lb { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
-.lb-row { display: grid; grid-template-columns: 30px auto minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 10px 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); }
+.lb-row, .lb-cols { display: grid; grid-template-columns: 28px 36px minmax(0, 1fr) 72px 68px; align-items: center; gap: 8px; }
+.lb-row { padding: 10px 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); }
+.lb-cols { padding: 0 10px; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: -4px; }
+.lb-cols span:first-child { grid-column: 1 / 4; }
+.lb-cols span:not(:first-child) { text-align: right; }
+.lb-pct { text-align: right; font-family: var(--font-display); font-weight: 700; font-size: 17px; color: var(--felt); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.lb-num { text-align: right; font-weight: 600; font-size: 16px; font-variant-numeric: tabular-nums; }
 .lb-row.is-me { border-color: var(--felt); box-shadow: inset 0 0 0 1px var(--felt), var(--shadow); }
-.lb-place { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-family: var(--font-display); font-weight: 700; font-size: 14px; background: var(--surface-2); border: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+.lb-place { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-family: var(--font-display); font-weight: 700; font-size: 14px; background: var(--surface-2); border: 1px solid var(--line); font-variant-numeric: tabular-nums; }
 .lb-place.p1 { background: #f2c94c; border-color: #d4a514; color: #3b2a00; }
 .lb-place.p2 { background: #d6dce1; border-color: #a9b3bc; color: #25303a; }
 .lb-place.p3 { background: #e3a772; border-color: #bd7a41; color: #3a1f06; }
@@ -504,10 +510,6 @@ td.num, th.num { text-align: right; }
 .lb-name b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .lb-name small { color: var(--muted); font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .lb-me { font-style: normal; font-size: 11px; font-weight: 700; color: var(--felt); background: var(--felt-soft); border-radius: 999px; padding: 1px 7px; margin-left: 6px; vertical-align: 2px; }
-.lb-val { display: grid; justify-items: end; text-align: right; }
-.lb-val b { font-family: var(--font-display); font-size: 18px; color: var(--felt); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.lb-val small { color: var(--muted); font-size: 12.5px; white-space: nowrap; }
-.lb-note { font-size: 13px; }
 .fr-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
 .fr-row { display: flex; align-items: center; gap: 10px; }
 .fr-row .lb-name { flex: 1; }
@@ -515,12 +517,21 @@ td.num, th.num { text-align: right; }
 .btn-sm { padding: 6px 10px; font-size: 14px; border-radius: 9px; }
 .fr-add { display: flex; gap: 8px; }
 .fr-add .inline-in { flex: 1; min-width: 0; padding: 9px 12px; font-size: 16px; }
-.fr-share { justify-self: start; text-align: left; }
 .fr-me { display: flex; align-items: center; gap: 12px; }
+.lb-name small.fr-stat { color: var(--felt); font-weight: 600; }
+.nick-copy { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); border-radius: 999px; padding: 5px 11px 5px 9px; font-size: 14px; font-weight: 600; max-width: 55%; }
+.nick-copy svg { width: 16px; height: 16px; flex: none; color: var(--muted); }
+.nick-copy span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nick-copy:active { background: var(--felt-soft); }
+.lb-head .h2 { min-width: 0; }
 .auth-page { margin-top: 18vh; }
 .tb-item.has-badge::after { content: ""; position: absolute; top: 8px; left: calc(50% + 7px); width: 9px; height: 9px; border-radius: 50%; background: var(--danger); }
 .tb.tb-many .tb-item { font-size: 10.5px; letter-spacing: 0; }
-@media (max-width: 360px) { .tb.tb-many .tb-item { font-size: 9.5px; } }
+.tb.tb-six { width: min(calc(100vw - 20px), 460px); }
+.tb.tb-six .tb-item { font-size: 9.5px; gap: 2px; }
+.tb.tb-six .tb-item svg { width: 24px; height: 24px; }
+@media (max-width: 380px) { .tb.tb-six .tb-item { font-size: 9px; } }
+@media (max-width: 360px) { .tb.tb-many .tb-item { font-size: 9px; } .tb.tb-six .tb-item { font-size: 8.5px; } }
 
 /* ===================== Справочник ===================== */
 .vh { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; opacity: 0; }
@@ -1249,10 +1260,10 @@ function render() {
   const a = document.activeElement, focusId = a && a.id;
   if (ui.sessionId && !state.sessions[ui.sessionId]) { ui.sessionId = null; ui.picker = false; }
   let html = ui.schemeEdit ? viewSchemeEditor() : ui.sessionId ? viewSession() : ui.tab === 'backup' ? viewBackup() :
-    viewHeader() + (ui.tab === 'log' ? viewLog() : ui.tab === 'progress' ? viewProgress() : ui.tab === 'guide' ? viewGuide() : ui.tab === 'friends' ? viewFriends() : viewPrograms());
+    viewHeader() + (ui.tab === 'log' ? viewLog() : ui.tab === 'progress' ? viewProgress() : ui.tab === 'guide' ? viewGuide() : ui.tab === 'friends' ? viewFriends() : ui.tab === 'rating' ? viewRating() : viewPrograms());
   html += groupsDatalist() + viewModal();
   document.getElementById('app').innerHTML = html;
-  if (ui.tab === 'friends' && !ui.sessionId) friendsMaybeRefresh();
+  if (isSocialTab() && !ui.sessionId) friendsMaybeRefresh();
   if (mode !== 'loading') hideSplash();
   if (focusId) { const el = document.getElementById(focusId); if (el) el.focus({ preventScroll: true }); }
   if (ui.modal) { const f = document.getElementById('m-ok') || document.getElementById('copy-area'); if (f && !focusId) f.focus(); }
@@ -2865,6 +2876,7 @@ let aSyncing = false, aTimer = null, aRetry = 5000, aOffline = false, authTimer 
 const acctOn = () => !!(API_URL && acct.token);
 const acctFix = () => { if (!acct.ver || typeof acct.ver !== 'object') acct.ver = {}; if (!acct.dirty || typeof acct.dirty !== 'object') acct.dirty = {}; };
 const saveAcct = () => { acctFix(); saveObj(LS_ACCT, acct); };
+const isSocialTab = () => ui.tab === 'friends' || ui.tab === 'rating';
 const acctPending = () => !!(acct.dirty && (acct.dirty.data || acct.dirty.guide));
 const randHex = n => Array.from(crypto.getRandomValues(new Uint8Array(n)), b => b.toString(16).padStart(2, '0')).join('');
 const authPending = () => { const p = loadObj(LS_AUTH); return !!p.state && Date.now() - (p.at || 0) < AUTH_WAIT; };
@@ -2879,6 +2891,15 @@ acctFix();
   if (add || err) { try { history.replaceState(null, '', location.pathname); } catch (e) { /* ignore */ } }
 })();
 
+async function copyPlain(text) {
+  try { await navigator.clipboard.writeText(text); return true; } catch (e) { /* старые браузеры — ниже */ }
+  try {
+    const t = document.createElement('textarea');
+    t.value = text; t.setAttribute('readonly', ''); t.style.cssText = 'position:fixed;top:0;left:0;opacity:0;font-size:16px';
+    document.body.appendChild(t); t.select(); t.setSelectionRange(0, text.length);
+    const ok = document.execCommand('copy'); t.remove(); return ok;
+  } catch (e) { return false; }
+}
 async function api(a, payload, opts) {
   opts = opts || {};
   const body = JSON.stringify(Object.assign({ a }, acct.token && !opts.anon ? { t: acct.token } : {}, payload || {}));
@@ -2968,7 +2989,7 @@ async function acctSync(opts) {
   aSyncing = false; saveAcct();
   if (ok && acctPending() && !aTimer) scheduleAcct(1500);   // пока шла отправка, появились новые правки
   updateSyncPill();
-  if (!ui.sessionId && (ui.tab === 'backup' || ui.tab === 'friends')) scheduleRender();
+  if (!ui.sessionId && (ui.tab === 'backup' || isSocialTab())) scheduleRender();
 }
 const acctPullNow = () => { if (acctOn() && !acct.authError && !aSyncing && document.visibilityState !== 'hidden') acctSync({ pull: true }); };
 
@@ -2979,7 +3000,7 @@ async function authPoll() {
   const p = loadObj(LS_AUTH);
   if (!p.state || Date.now() - (p.at || 0) > AUTH_WAIT) {
     try { localStorage.removeItem(LS_AUTH); } catch (e) { /* ignore */ }
-    if (!ui.sessionId && (ui.tab === 'friends' || ui.tab === 'backup')) scheduleRender();
+    if (!ui.sessionId && (isSocialTab() || ui.tab === 'backup')) scheduleRender();
     return;
   }
   if (document.visibilityState === 'hidden') { authPollStart(3000); return; }
@@ -3011,7 +3032,7 @@ function loginLink(label) {
   if (!ui.authNext) ui.authNext = randHex(16);
   return '<a class="btn btn-primary btn-login" id="acct-login" href="' + esc(API_URL + '?a=login&state=' + ui.authNext) + '" target="_blank" data-action="acct-login" data-state="' + ui.authNext + '">' + LOGIN_ICON + '<span>' + esc(label) + '</span></a>';
 }
-const authWaitHTML = () => authPending() ? '<p class="fr-wait">Жду подтверждения от GitHub… Если окно входа закрылось раньше времени, нажми кнопку ещё раз.</p>' : '';
+const authWaitHTML = () => authPending() ? '<p class="fr-wait">Жду подтверждения от GitHub…</p>' : '';
 
 /* друзья */
 function setFriends(j) {
@@ -3027,14 +3048,15 @@ function acctErr(e, silent) {
 async function loadFriends(silent) {
   if (!acctOn() || acct.authError || ui.fBusy) return;
   ui.fTried = Date.now(); ui.fBusy = true;
-  if (!silent && !ui.sessionId && ui.tab === 'friends') render();
+  if (!silent && !ui.sessionId && isSocialTab()) render();
   try { setFriends(await api('friends')); } catch (e) { acctErr(e, silent); }
   ui.fBusy = false;
-  if (!ui.sessionId && ui.tab === 'friends') scheduleRender();
+  if (!ui.sessionId && isSocialTab()) scheduleRender();
 }
 function friendsMaybeRefresh() {
   if (!acctOn() || acct.authError || ui.fBusy || navigator.onLine === false) return;
-  if (Date.now() - (friends.at || 0) > 60000 && Date.now() - (ui.fTried || 0) > 30000) setTimeout(() => loadFriends(true), 0);
+  // при открытии «Друзей» и «Рейтинга» данные обновляются, если им больше 15 секунд
+  if (Date.now() - (friends.at || 0) > 15000 && Date.now() - (ui.fTried || 0) > 10000) setTimeout(() => loadFriends(true), 0);
 }
 async function friendAct(a, payload, okMsg) {
   if (navigator.onLine === false) { toast('Для этого нужен интернет'); return null; }
@@ -3065,47 +3087,50 @@ function avatarHTML(u, size) {
   return '<span class="ava" style="width:' + size + 'px;height:' + size + 'px;font-size:' + Math.round(size * 0.42) + 'px" aria-hidden="true"><span>' + letter + '</span>' +
     (src ? '<img src="' + esc(src) + '" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">' : '') + '</span>';
 }
-const userName = (u, me) => '<span class="lb-name"><b>' + esc(nameOfUser(u)) + (me ? '<em class="lb-me">ты</em>' : '') + '</b><small>@' + esc(u.login || '') + '</small></span>';
+const userName = (u, me, extra) => '<span class="lb-name"><b>' + esc(nameOfUser(u)) + (me ? '<em class="lb-me">ты</em>' : '') + '</b><small>@' + esc(u.login || '') + '</small>' + (extra ? '<small class="fr-stat">' + extra + '</small>' : '') + '</span>';
+// рейтинг: место, игрок, точность (по ней места), число тренировок
 function lbRow(r) {
   const st = r.stats || {};
   return '<li class="lb-row' + (r.isMe ? ' is-me' : '') + '"><span class="lb-place' + (r.place && r.place <= 3 ? ' p' + r.place : '') + '">' + (r.place || '—') + '</span>' +
-    avatarHTML(r, 38) + userName(r, r.isMe) +
-    '<span class="lb-val"><b>' + pctTxt(r.p) + '</b><small>' + trainingsWord(st.trainings || 0) + '</small></span></li>';
+    avatarHTML(r, 36) + userName(r, r.isMe) +
+    '<span class="lb-pct">' + pctTxt(r.p) + '</span><span class="lb-num">' + (st.trainings || 0) + '</span></li>';
 }
-const frRow = (u, acts, note) => '<li class="fr-row">' + avatarHTML(u, 36) + '<span class="lb-name"><b>' + esc(nameOfUser(u)) + '</b><small>@' + esc(u.login || '') + (note ? ' — ' + esc(note) : '') + '</small></span><span class="fr-acts">' + acts + '</span></li>';
+const frStat = u => { const st = u.stats || {}; return esc(pctTxt(pctOf(st))) + ' — ' + esc(trainingsWord(st.trainings || 0)); };
+const frRow = (u, acts, extra) => '<li class="fr-row">' + avatarHTML(u, 40) + userName(u, false, extra) + '<span class="fr-acts">' + acts + '</span></li>';
 const fmtAgo = t => { const s = (Date.now() - t) / 1000; if (s < 60) return 'только что'; if (s < 3600) return Math.floor(s / 60) + ' мин назад'; return fmtStamp(new Date(t).toISOString()); };
+const COPY_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="8.5" y="8.5" width="11.5" height="12" rx="2.5"/><path d="M15.5 8.5V6A2.5 2.5 0 0 0 13 3.5H6.5A2.5 2.5 0 0 0 4 6v7.5A2.5 2.5 0 0 0 6.5 16h2"/></svg>';
+const loginCard = title => '<section class="card stack fr-hero"><h2 class="h2">' + title + '</h2>' + loginLink('Войти через GitHub') + authWaitHTML() + '</section>';
+const reloginCard = () => acct.authError ? '<section class="card stack"><div class="banner">Вход устарел</div>' + loginLink('Войти заново') + authWaitHTML() + '</section>' : '';
+
+function viewRating() {
+  if (!acctOn()) return loginCard('Рейтинг');
+  const busy = ui.fBusy ? ' disabled' : '';
+  return reloginCard() +
+    '<section class="stack"><div class="lb-head"><h2 class="h2">Таблица лидеров</h2><button class="link" id="lb-refresh" data-action="fr-refresh"' + busy + '>' + (ui.fBusy ? 'Обновляю…' : 'Обновить') + '</button></div>' +
+    '<div class="lb-cols" aria-hidden="true"><span>Игрок</span><span>Точность</span><span>Тренировок</span></div>' +
+    '<ol class="lb">' + leaderboard().map(lbRow).join('') + '</ol></section>';
+}
 
 function viewFriends() {
-  if (!acctOn()) {
-    return '<section class="card stack fr-hero"><h2 class="h2">Друзья и соревнование</h2>' +
-      '<p class="bk-muted">Войди через GitHub — и сможешь добавлять друзей и соревноваться с ними в таблице лидеров по точности ударов. Заодно тренировки будут храниться в твоём аккаунте и подтягиваться на любом устройстве.</p>' +
-      loginLink('Войти через GitHub') + authWaitHTML() +
-      '<p class="bk-muted fr-small">GitHub спросит доступ только к имени и аватарке. Всё, что уже есть на этом устройстве, перенесётся в аккаунт.</p></section>';
-  }
+  if (!acctOn()) return loginCard('Друзья');
   const f = friends, busy = ui.fBusy ? ' disabled' : '';
-  let html = '';
-  if (acct.authError) html += '<section class="card stack"><div class="banner">Вход в аккаунт устарел. Войди заново — данные никуда не пропадут.</div>' + loginLink('Войти заново') + authWaitHTML() + '</section>';
+  let html = reloginCard();
   if ((f.incoming || []).length) {
     html += '<section class="card stack"><h2 class="h2">Заявки в друзья <span class="count">' + f.incoming.length + '</span></h2><ul class="fr-list">' +
       f.incoming.map(u => frRow(u, '<button class="btn btn-primary btn-sm" id="fra-' + esc(u.id) + '" data-action="fr-accept" data-uid="' + esc(u.id) + '"' + busy + '>Принять</button>' +
         '<button class="btn btn-sm" id="frd-' + esc(u.id) + '" data-action="fr-decline" data-uid="' + esc(u.id) + '"' + busy + '>Отклонить</button>')).join('') + '</ul></section>';
   }
-  const rows = leaderboard();
-  html += '<section class="stack"><div class="lb-head"><h2 class="h2">Таблица лидеров</h2><button class="link" id="fr-refresh" data-action="fr-refresh"' + busy + '>' + (ui.fBusy ? 'Обновляю…' : 'Обновить') + '</button></div>' +
-    '<ol class="lb">' + rows.map(lbRow).join('') + '</ol>' +
-    '<p class="bk-muted lb-note">' + (rows.length < 2 ? 'Добавь друзей — и здесь начнётся соревнование. ' : '') + 'Место определяет точность ударов за все тренировки: сколько забито из всех ударов. Упражнения без счётчика ударов не учитываются.' + (f.at ? ' Обновлено ' + esc(fmtAgo(f.at)) + '.' : '') + '</p></section>';
-  html += '<section class="card stack"><h2 class="h2">Добавить друга</h2>' +
-    '<form class="fr-add" data-form="fr-add" autocomplete="off"><input id="fr-login" name="login" class="inline-in" placeholder="Ник друга на GitHub" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send" value="' + esc(ui.fAdd || '') + '">' +
-    '<button class="btn btn-primary" id="fr-add-btn" type="submit"' + busy + '>Добавить</button></form>' +
-    '<p class="bk-muted">Друг получит заявку и подтвердит её у себя. Если он ещё не входил в приложение, заявка будет ждать его первого входа.</p>' +
-    '<button class="link fr-share" id="fr-share" data-action="fr-share">Поделиться своим ником — @' + esc((acct.user || {}).login || '') + '</button>';
+  html += '<section class="card stack"><div class="lb-head"><h2 class="h2">Добавить друга</h2>' +
+    '<button class="nick-copy" id="fr-nick" data-action="fr-copy-nick" aria-label="Скопировать мой ник ' + esc((acct.user || {}).login || '') + '">' + COPY_ICON + '<span>' + esc((acct.user || {}).login || '') + '</span></button></div>' +
+    '<form class="fr-add" data-form="fr-add" autocomplete="off"><input id="fr-login" name="login" class="inline-in" placeholder="Ник на GitHub" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send" value="' + esc(ui.fAdd || '') + '">' +
+    '<button class="btn btn-primary" id="fr-add-btn" type="submit"' + busy + '>Добавить</button></form>';
   if ((f.outgoing || []).length) {
-    html += '<h3 class="sub-h">Ждут ответа</h3><ul class="fr-list">' + f.outgoing.map(u => frRow(u, '<button class="btn btn-sm" id="frc-' + esc(u.id) + '" data-action="fr-decline" data-uid="' + esc(u.id) + '"' + busy + '>Отменить</button>', u.joined ? '' : 'ещё не входил в приложение')).join('') + '</ul>';
+    html += '<h3 class="sub-h">Ждут ответа</h3><ul class="fr-list">' + f.outgoing.map(u => frRow(u, '<button class="btn btn-sm" id="frc-' + esc(u.id) + '" data-action="fr-decline" data-uid="' + esc(u.id) + '"' + busy + '>Отменить</button>', u.joined ? '' : 'ещё не в приложении')).join('') + '</ul>';
   }
   html += '</section>';
   if ((f.friends || []).length) {
     html += '<section class="card stack"><h2 class="h2">Друзья <span class="count">' + f.friends.length + '</span></h2><ul class="fr-list">' +
-      f.friends.map(u => frRow(u, '<button class="icon-btn" id="frr-' + esc(u.id) + '" data-action="fr-remove" data-uid="' + esc(u.id) + '" aria-label="Удалить ' + esc(nameOfUser(u)) + ' из друзей"' + busy + '>×</button>')).join('') + '</ul></section>';
+      f.friends.map(u => frRow(u, '<button class="icon-btn" id="frr-' + esc(u.id) + '" data-action="fr-remove" data-uid="' + esc(u.id) + '" aria-label="Удалить ' + esc(nameOfUser(u)) + ' из друзей"' + busy + '>×</button>', frStat(u))).join('') + '</ul></section>';
   }
   return html;
 }
@@ -3137,7 +3162,7 @@ Object.assign(actions, {
   'acct-logout-ok': () => {
     ui.modal = null; clearTimeout(aTimer); aTimer = null;
     acct = {}; acctFix(); saveAcct(); friends = {}; saveObj(LS_FRIENDS, friends);
-    if (ui.tab === 'friends') ui.tab = 'log';
+    if (isSocialTab()) ui.tab = 'log';
     render(); toast('Ты вышел из аккаунта. Данные остались на этом устройстве');
   },
   'fr-refresh': () => loadFriends(false),
@@ -3145,14 +3170,9 @@ Object.assign(actions, {
   'fr-decline': el => friendAct('friend-remove', { uid: el.dataset.uid }),
   'fr-remove': el => { const u = (friends.friends || []).find(x => x.id === el.dataset.uid); ui.modal = { type: 'fr-remove', uid: el.dataset.uid, name: nameOfUser(u) }; render(); },
   'fr-remove-ok': () => { const { uid, name } = ui.modal; ui.modal = null; friendAct('friend-remove', { uid }, name + ' удалён из друзей'); },
-  'fr-share': async () => {
+  'fr-copy-nick': async () => {
     const login = (acct.user || {}).login || '';
-    const text = 'Добавь меня в друзья в «Бильярде» — мой ник на GitHub: ' + login;
-    const url = APP_HOME + '?add=' + encodeURIComponent(login);
-    if (navigator.share) {
-      try { await navigator.share({ text, url }); return; } catch (e) { if (e && e.name === 'AbortError') return; }
-    }
-    try { await navigator.clipboard.writeText(text + '\n' + url); toast('Скопировано — отправь другу'); } catch (e) { toast('Твой ник: ' + login); }
+    if (await copyPlain(login)) toast('Ник скопирован: ' + login); else toast('Твой ник: ' + login);
   }
 });
 document.addEventListener('submit', async ev => {
@@ -3183,7 +3203,7 @@ document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'hidden') { if (acctOn() && acctPending() && !acct.authError) acctSync(); return; }
   if (authPending() && !acctOn()) authPollStart(300);
   acctPullNow();
-  if (ui.tab === 'friends') friendsMaybeRefresh();
+  if (isSocialTab()) friendsMaybeRefresh();
 });
 window.addEventListener('online', () => { aRetry = 5000; aOffline = false; acctPullNow(); });
 window.addEventListener('offline', () => { aOffline = true; updateSyncPill(); });
@@ -3191,21 +3211,23 @@ setInterval(() => {
   if (!acctOn() || document.visibilityState === 'hidden') return;
   if (acctPending() && !aSyncing && !aTimer) acctSync();
   else if (!acctPending()) acctPullNow();
-  if (Date.now() - (friends.at || 0) > 5 * 60000) loadFriends(true);
+  if (Date.now() - (friends.at || 0) > (isSocialTab() ? 50000 : 5 * 60000)) loadFriends(true);
 }, 60000);
 
 /* ---------- нижняя панель вкладок (iOS 26) ---------- */
+const TB_RATING = ['rating', 'Рейтинг', '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 2.8h10v6.1a5 5 0 0 1-10 0V2.8Z"/><path d="M7 4.6H4.4v1.6a3.9 3.9 0 0 0 3.4 3.9M17 4.6h2.6v1.6a3.9 3.9 0 0 1-3.4 3.9" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/><rect x="10.9" y="13.4" width="2.2" height="3.8" rx=".6"/><rect x="7" y="16.9" width="10" height="4.3" rx="1.4"/></svg>'];
 const TB_FRIENDS = ['friends', 'Друзья', '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="7.4" r="3.7"/><path d="M1.8 19c0-3.7 3.2-6.3 7.2-6.3s7.2 2.6 7.2 6.3c0 .8-.6 1.4-1.4 1.4H3.2c-.8 0-1.4-.6-1.4-1.4Z"/><circle cx="17.2" cy="8.4" r="3"/><path d="M17.6 13.2c2.7.2 4.6 2.2 4.6 4.9 0 .7-.5 1.2-1.2 1.2h-3.5c.2-.4.2-.8.2-1.2 0-1.9-.8-3.6-2.1-4.8.6-.1 1.3-.1 2-.1Z"/></svg>'];
 const TB_TABS = [
   ['log', 'Тренировки', '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M7 2.5a1 1 0 0 1 1 1V5h8V3.5a1 1 0 1 1 2 0V5h.5A3.5 3.5 0 0 1 22 8.5v10a3.5 3.5 0 0 1-3.5 3.5h-13A3.5 3.5 0 0 1 2 18.5v-10A3.5 3.5 0 0 1 5.5 5H6V3.5a1 1 0 0 1 1-1ZM4 10v8.5c0 .83.67 1.5 1.5 1.5h13c.83 0 1.5-.67 1.5-1.5V10H4Z"/><rect x="6" y="12" width="3.2" height="3" rx=".9"/><rect x="10.4" y="12" width="3.2" height="3" rx=".9"/><rect x="14.8" y="12" width="3.2" height="3" rx=".9"/><rect x="6" y="16.2" width="3.2" height="2.6" rx=".9"/><rect x="10.4" y="16.2" width="3.2" height="2.6" rx=".9"/></svg>'],
   ['progress', 'Прогресс', '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="3" y="13" width="4.6" height="8.5" rx="1.6"/><rect x="9.7" y="8.2" width="4.6" height="13.3" rx="1.6"/><rect x="16.4" y="3" width="4.6" height="18.5" rx="1.6"/></svg>'],
   ['programs', 'Комплексы', '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="4.6" cy="6" r="2"/><circle cx="4.6" cy="12" r="2"/><circle cx="4.6" cy="18" r="2"/><rect x="8.6" y="4.4" width="12.8" height="3.2" rx="1.6"/><rect x="8.6" y="10.4" width="12.8" height="3.2" rx="1.6"/><rect x="8.6" y="16.4" width="12.8" height="3.2" rx="1.6"/></svg>'],
   ['guide', 'Справочник', '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M11 5.4C9.1 4.2 6.8 3.6 4.4 3.6c-.86 0-1.66.08-2.4.24v14.9c.76-.17 1.56-.26 2.4-.26 2.45 0 4.7.66 6.6 1.86V5.4Z"/><path d="M13 5.4c1.9-1.2 4.2-1.8 6.6-1.8.86 0 1.66.08 2.4.24v14.9a11 11 0 0 0-2.4-.26c-2.45 0-4.7.66-6.6 1.86V5.4Z"/></svg>']
-].concat(API_URL ? [TB_FRIENDS] : []);
+].concat(API_URL ? [TB_RATING, TB_FRIENDS] : []);
 const tb = document.createElement('nav');
 tb.className = 'tb'; tb.id = 'tabbar'; tb.setAttribute('role', 'tablist'); tb.setAttribute('aria-label', 'Разделы');
 tb.style.setProperty('--tb-n', TB_TABS.length);
 if (TB_TABS.length > 4) tb.classList.add('tb-many');
+if (TB_TABS.length > 5) tb.classList.add('tb-six');
 tb.innerHTML = '<span class="tb-ind" aria-hidden="true"></span>' + TB_TABS.map(([k, l, ic]) =>
   '<button class="tb-item" role="tab" type="button" data-tb="' + k + '" aria-selected="false">' + ic + '<span>' + l + '</span></button>').join('');
 const tbAcc = document.createElement('div');
