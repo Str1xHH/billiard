@@ -3122,7 +3122,8 @@ function viewFriends() {
   }
   html += '<section class="card stack"><div class="lb-head"><h2 class="h2">Добавить друга</h2>' +
     '<button class="nick-copy" id="fr-nick" data-action="fr-copy-nick" aria-label="Скопировать мой ник ' + esc((acct.user || {}).login || '') + '">' + COPY_ICON + '<span>' + esc((acct.user || {}).login || '') + '</span></button></div>' +
-    '<form class="fr-add" data-form="fr-add" autocomplete="off"><input id="fr-login" name="login" class="inline-in" placeholder="Ник на GitHub" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send" value="' + esc(ui.fAdd || '') + '">' +
+    // без слов «login»/«user» в id и name: по ним iPhone принимает поле за логин и предлагает сохранённые пароли
+    '<form class="fr-add" data-form="fr-add" autocomplete="off"><input id="fr-friend" name="friend" type="text" autocomplete="off" class="inline-in" placeholder="Ник на GitHub" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send" value="' + esc(ui.fAdd || '') + '">' +
     '<button class="btn btn-primary" id="fr-add-btn" type="submit"' + busy + '>Добавить</button></form>';
   if ((f.outgoing || []).length) {
     html += '<h3 class="sub-h">Ждут ответа</h3><ul class="fr-list">' + f.outgoing.map(u => frRow(u, '<button class="btn btn-sm" id="frc-' + esc(u.id) + '" data-action="fr-decline" data-uid="' + esc(u.id) + '"' + busy + '>Отменить</button>', u.joined ? '' : 'ещё не в приложении')).join('') + '</ul>';
@@ -3179,7 +3180,7 @@ document.addEventListener('submit', async ev => {
   const f = ev.target;
   if (f.dataset.form !== 'fr-add') return;
   ev.preventDefault();
-  const v = String(new FormData(f).get('login') || '').trim();
+  const v = String(new FormData(f).get('friend') || '').trim();
   if (!v) { toast('Впиши ник друга на GitHub'); return; }
   ui.fAdd = v;
   if (document.activeElement) document.activeElement.blur();
@@ -3191,7 +3192,7 @@ document.addEventListener('submit', async ev => {
   });
   if (j) { ui.fAdd = ''; render(); }
 });
-document.addEventListener('input', ev => { if (ev.target.id === 'fr-login') ui.fAdd = ev.target.value; });
+document.addEventListener('input', ev => { if (ev.target.id === 'fr-friend') ui.fAdd = ev.target.value; });
 window.addEventListener('storage', ev => {
   // вход завершился в соседней вкладке того же браузера
   if (ev.key !== LS_ACCT || !API_URL) return;
