@@ -516,7 +516,11 @@ td.num, th.num { text-align: right; }
 .fr-acts { display: flex; gap: 6px; flex: none; }
 .btn-sm { padding: 6px 10px; font-size: 14px; border-radius: 9px; }
 .fr-add { display: flex; gap: 8px; }
-.fr-add .inline-in { flex: 1; min-width: 0; padding: 9px 12px; font-size: 16px; }
+.fr-in { position: relative; flex: 1; min-width: 0; display: flex; }
+.fr-add .inline-in { flex: 1; min-width: 0; padding: 9px 44px 9px 12px; font-size: 16px; }
+.fr-paste { position: absolute; right: 3px; top: 50%; transform: translateY(-50%); width: 38px; height: 38px; border: 0; border-radius: 9px; background: none; color: var(--muted); display: grid; place-items: center; padding: 0; }
+.fr-paste svg { width: 21px; height: 21px; }
+.fr-paste:active { background: var(--surface-2); color: var(--felt); }
 .fr-me { display: flex; align-items: center; gap: 12px; }
 .lb-name small.fr-stat { color: var(--felt); font-weight: 600; }
 .nick-copy { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); border-radius: 999px; padding: 5px 11px 5px 9px; font-size: 14px; font-weight: 600; max-width: 55%; }
@@ -3098,6 +3102,19 @@ function lbRow(r) {
 const frStat = u => { const st = u.stats || {}; return esc(pctTxt(pctOf(st))) + ' — ' + esc(trainingsWord(st.trainings || 0)); };
 const frRow = (u, acts, extra) => '<li class="fr-row">' + avatarHTML(u, 40) + userName(u, false, extra) + '<span class="fr-acts">' + acts + '</span></li>';
 const fmtAgo = t => { const s = (Date.now() - t) / 1000; if (s < 60) return 'только что'; if (s < 3600) return Math.floor(s / 60) + ' мин назад'; return fmtStamp(new Date(t).toISOString()); };
+const PASTE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M9 4.5H7A2.5 2.5 0 0 0 4.5 7v11.5A2.5 2.5 0 0 0 7 21h10a2.5 2.5 0 0 0 2.5-2.5V7A2.5 2.5 0 0 0 17 4.5h-2"/><rect x="9" y="2.8" width="6" height="3.6" rx="1.2"/><path d="M8.5 11.5h7M8.5 15.5h4.5"/></svg>';
+// ник из скопированного текста: «Str1xHH», «@Str1xHH», ссылка github.com/Str1xHH или сообщение с ником внутри
+function nickFrom(text) {
+  const t = String(text || '').trim();
+  const m = /github\.com\/([A-Za-z\d](?:[A-Za-z\d]|-(?=[A-Za-z\d])){0,38})/i.exec(t);
+  if (m) return m[1];
+  const one = t.replace(/^@/, '');
+  const repo = /^@?([A-Za-z\d](?:[A-Za-z\d]|-(?=[A-Za-z\d])){0,38})\/[\w.-]+$/.exec(t);   // «ник/репозиторий»
+  if (repo) return repo[1];
+  if (/^[A-Za-z\d](?:[A-Za-z\d]|-(?=[A-Za-z\d])){0,38}$/.test(one)) return one;
+  const words = (t.match(/@?[A-Za-z\d](?:[A-Za-z\d]|-(?=[A-Za-z\d])){0,38}/g) || []).map(w => w.replace(/^@/, '')).filter(w => !/^(github|https?|www|com)$/i.test(w));
+  return words.length ? words[words.length - 1] : '';
+}
 const COPY_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="8.5" y="8.5" width="11.5" height="12" rx="2.5"/><path d="M15.5 8.5V6A2.5 2.5 0 0 0 13 3.5H6.5A2.5 2.5 0 0 0 4 6v7.5A2.5 2.5 0 0 0 6.5 16h2"/></svg>';
 const loginCard = title => '<section class="card stack fr-hero"><h2 class="h2">' + title + '</h2>' + loginLink('Войти через GitHub') + authWaitHTML() + '</section>';
 const reloginCard = () => acct.authError ? '<section class="card stack"><div class="banner">Вход устарел</div>' + loginLink('Войти заново') + authWaitHTML() + '</section>' : '';
@@ -3123,7 +3140,8 @@ function viewFriends() {
   html += '<section class="card stack"><div class="lb-head"><h2 class="h2">Добавить друга</h2>' +
     '<button class="nick-copy" id="fr-nick" data-action="fr-copy-nick" aria-label="Скопировать мой ник ' + esc((acct.user || {}).login || '') + '">' + COPY_ICON + '<span>' + esc((acct.user || {}).login || '') + '</span></button></div>' +
     // без слов «login»/«user» в id и name: по ним iPhone принимает поле за логин и предлагает сохранённые пароли
-    '<form class="fr-add" data-form="fr-add" autocomplete="off"><input id="fr-friend" name="friend" type="text" autocomplete="off" class="inline-in" placeholder="Ник на GitHub" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send" value="' + esc(ui.fAdd || '') + '">' +
+    '<form class="fr-add" data-form="fr-add" autocomplete="off"><span class="fr-in"><input id="fr-friend" name="friend" type="text" autocomplete="off" class="inline-in" placeholder="Ник на GitHub" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send" value="' + esc(ui.fAdd || '') + '">' +
+    '<button class="fr-paste" id="fr-paste" type="button" data-action="fr-paste" aria-label="Вставить скопированный ник">' + PASTE_ICON + '</button></span>' +
     '<button class="btn btn-primary" id="fr-add-btn" type="submit"' + busy + '>Добавить</button></form>';
   if ((f.outgoing || []).length) {
     html += '<h3 class="sub-h">Ждут ответа</h3><ul class="fr-list">' + f.outgoing.map(u => frRow(u, '<button class="btn btn-sm" id="frc-' + esc(u.id) + '" data-action="fr-decline" data-uid="' + esc(u.id) + '"' + busy + '>Отменить</button>', u.joined ? '' : 'ещё не в приложении')).join('') + '</ul>';
@@ -3171,6 +3189,15 @@ Object.assign(actions, {
   'fr-decline': el => friendAct('friend-remove', { uid: el.dataset.uid }),
   'fr-remove': el => { const u = (friends.friends || []).find(x => x.id === el.dataset.uid); ui.modal = { type: 'fr-remove', uid: el.dataset.uid, name: nameOfUser(u) }; render(); },
   'fr-remove-ok': () => { const { uid, name } = ui.modal; ui.modal = null; friendAct('friend-remove', { uid }, name + ' удалён из друзей'); },
+  'fr-paste': async () => {
+    let text = '';
+    try { text = await navigator.clipboard.readText(); } catch (e) { text = null; }
+    if (text == null) { toast('Удерживай палец на поле и выбери «Вставить»'); return; }
+    const nick = nickFrom(text);
+    if (!nick) { toast('В скопированном нет ника GitHub'); return; }
+    ui.fAdd = nick;
+    const inp = document.getElementById('fr-friend'); if (inp) inp.value = nick;
+  },
   'fr-copy-nick': async () => {
     const login = (acct.user || {}).login || '';
     if (await copyPlain(login)) toast('Ник скопирован: ' + login); else toast('Твой ник: ' + login);
