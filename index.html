@@ -515,6 +515,9 @@ td.num, th.num { text-align: right; }
 .g-qx { width: 38px; height: 38px; flex: none; border: 0; border-radius: 50%; padding: 0; display: grid; place-items: center; background: var(--tb-ind); color: var(--tb-ink); font-size: 20px; line-height: 1; }
 .g-qx[hidden] { display: none; }
 
+#g-fx { position: fixed; inset: 0; z-index: 15; pointer-events: none; overflow: hidden; }
+/* настоящие плашки — над гаснущими копиями (15), но под поиском (20) и панелью вкладок (30) */
+.g-h, .g-card, #g-add, #g-none { position: relative; z-index: 16; }
 .g-sec { display: grid; gap: 10px; }
 .g-sec[hidden], .g-card[hidden] { display: none; }
 .g-h { margin: 6px 4px 0; font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
@@ -2466,7 +2469,7 @@ function gCard(it) {
   const k = safeId(it.id), open = ui.gOpen === it.id, gid = esc(it.id);
   const tag = it.kind === 'ex' ? 'упражнение' + (it.group ? ' — ' + it.group : '') : 'элемент';
   const badges = (it.videos.length ? G_ICON.video : '') + (it.scheme ? G_ICON.scheme : '');
-  return '<article class="g-card' + (open ? ' is-open' : '') + '" id="g-' + k + '" data-s="' + esc(nq(it.name + ' ' + (it.group || '') + ' ' + it.text)) + '">' +
+  return '<article class="g-card' + (open ? ' is-open' : '') + '" id="g-' + k + '" data-n="' + esc(gWords(it.name + ' ' + (it.group || ''))) + '" data-s="' + esc(nq(it.name + ' ' + (it.group || '') + ' ' + it.text)) + '">' +
     '<button class="g-head" id="gh-' + k + '" data-action="g-open" data-gid="' + gid + '" aria-expanded="' + open + '"><span class="g-ttl"><b>' + esc(it.name) + '</b><small>' + esc(tag) + '</small></span>' +
     (badges ? '<span class="g-badges" aria-hidden="true">' + badges + '</span>' : '') + G_ICON.chev + '</button>' +
     (open ? (ui.gEdit === it.id ? gEditBody(it) : gBody(it)) : '') + '</article>';
@@ -2482,16 +2485,59 @@ function viewGuide() {
   h += '<button class="btn g-add" id="g-add" data-action="g-add-el">+ Свой элемент</button>';
   return h;
 }
-function gFilter() {
-  const q = nq((ui.gq || '').trim());
+const gWords = t => ' ' + nq(t).replace(/[^a-zа-я0-9]+/g, ' ').trim() + ' ';
+// Поиск: сначала по названию (с начала любого слова), а если по названиям ничего нет — по тексту описаний.
+// С анимацией: лишние плашки плавно гаснут, оставшиеся плавно подъезжают на новые места (приём FLIP:
+// запомнить, где всё было, применить фильтр, затем плавно довести каждую плашку от старого места до нового).
+let gFx = null;
+function gFilter(animate) {
+  const app = document.getElementById('app');
+  const raw = (ui.gq || '').trim(), qw = gWords(raw).trim(), qs = nq(raw);
+  const cards = [...app.querySelectorAll('.g-card')];
+  const shown = el => !el.hidden && el.offsetParent !== null;
+  const items = () => [...app.querySelectorAll('.g-h, .g-card, #g-none, #g-add')];
+  const anim = animate && !reduceMotion && typeof Element.prototype.animate === 'function';
+  const before = new Map();
+  if (anim) items().forEach(el => { if (shown(el)) before.set(el, { r: el.getBoundingClientRect(), op: +getComputedStyle(el).opacity }); });
+  let hit = c => true;
+  if (qw) {
+    const byName = cards.filter(c => c.dataset.n.includes(' ' + qw));
+    hit = byName.length ? (c => byName.includes(c)) : (c => c.dataset.s.includes(qs));
+  }
   let any = false;
-  document.querySelectorAll('#app .g-sec').forEach(sec => {
+  app.querySelectorAll('.g-sec').forEach(sec => {
     let n = 0;
-    sec.querySelectorAll('.g-card').forEach(c => { const ok = !q || c.dataset.s.includes(q); c.hidden = !ok; if (ok) n++; });
+    sec.querySelectorAll('.g-card').forEach(c => { const ok = hit(c); c.hidden = !ok; if (ok) n++; });
     sec.hidden = !n; if (n) any = true;
   });
   const none = document.getElementById('g-none'); if (none) none.hidden = any;
   const x = document.getElementById('g-qx'); if (x) x.hidden = !ui.gq;
+  if (!anim) return;
+  items().forEach(el => el.getAnimations().forEach(a => a.cancel()));
+  if (!gFx || !gFx.isConnected) { gFx = document.createElement('div'); gFx.id = 'g-fx'; gFx.setAttribute('aria-hidden', 'true'); document.body.appendChild(gFx); }
+  const ease = 'cubic-bezier(.2, .8, .2, 1)';
+  // ушедшие: копия на старом месте плавно гаснет, сама плашка уже убрана из списка
+  before.forEach((b, el) => {
+    if (shown(el) || b.op < .05) return;
+    const g = el.cloneNode(true);
+    g.removeAttribute('id'); g.querySelectorAll('[id]').forEach(n => n.removeAttribute('id'));
+    g.querySelectorAll('iframe, video').forEach(n => n.remove());
+    g.hidden = false;
+    g.style.cssText = 'position:fixed;margin:0;left:' + b.r.left + 'px;top:' + b.r.top + 'px;width:' + b.r.width + 'px;height:' + b.r.height + 'px;';
+    gFx.appendChild(g);
+    g.animate([{ opacity: b.op, transform: 'none' }, { opacity: 0, transform: 'scale(.96)' }], { duration: 200, easing: 'ease-out', fill: 'forwards' })
+      .onfinish = () => g.remove();
+  });
+  items().forEach(el => {
+    if (!shown(el)) return;
+    const b = before.get(el), r = el.getBoundingClientRect();
+    if (!b) {   // появившиеся: проявляются чуть позже, когда лишние уже погасли
+      el.animate([{ opacity: 0, transform: 'translateY(10px) scale(.98)' }, { opacity: 1, transform: 'none' }], { duration: 280, delay: 90, easing: ease, fill: 'backwards' });
+      return;
+    }
+    const dy = b.r.top - r.top;   // оставшиеся: едут со старого места на новое
+    if (Math.abs(dy) > .5) el.animate([{ transform: 'translateY(' + dy + 'px)' }, { transform: 'none' }], { duration: 340, easing: ease });
+  });
 }
 
 /* ---------- редактор схемы (на весь экран) ---------- */
@@ -2643,7 +2689,7 @@ Object.assign(actions, {
   },
   'g-edit': el => { ui.gOpen = ui.gEdit = el.dataset.gid; render(); },
   'g-done': () => { ui.gEdit = null; render(); },
-  'g-qclear': () => { ui.gq = ''; const q = document.getElementById('g-q'); if (q) { q.value = ''; q.focus(); } gFilter(); },
+  'g-qclear': () => { ui.gq = ''; const q = document.getElementById('g-q'); if (q) { q.value = ''; q.focus(); } gFilter(true); },
   'g-goto': el => { ui.gq = ''; ui.gOpen = el.dataset.gid; ui.gEdit = null; ui.gScroll = el.dataset.gid; render(); },
   'g-play': el => {
     if (navigator.onLine === false) { toast('Для этого видео нужен интернет'); return; }
@@ -2696,7 +2742,7 @@ Object.assign(actions, {
 });
 document.addEventListener('input', ev => {
   const el = ev.target;
-  if (el.id === 'g-q') { ui.gq = el.value; gFilter(); return; }
+  if (el.id === 'g-q') { ui.gq = el.value; gFilter(true); return; }
   const f = el.dataset && el.dataset.gf, id = el.dataset && el.dataset.gid;
   if (!f || !id) return;
   if (f === 'name') {
